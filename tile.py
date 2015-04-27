@@ -3,6 +3,7 @@ class Tile():
     xcor = None
     ycor = None
     ground_height = None
+    water_depth = 0.0
 
     def __init__(self, map=None, x=None, y=None, ground_height=0.0):
         self.map = map
@@ -18,10 +19,17 @@ class Tile():
             raise Exception("Tile {} has not been properly initialized").format(self)
 
     def color(self):
-        col_min = [59, 19, 9]
-        col_max = [245, 222, 179]
+        if self.water_depth == 0:
+            col_min = [50, 20, 4]
+            col_max = [254, 232, 210]
+            p = (self.ground_height+50)/100.0
+        else:
+            col_min = [153, 204, 255]
+            col_max = [0, 0, 102]
+            p = self.water_depth/50.0
+            if p > 1:
+                p = 1
 
-        p = (self.ground_height+50)/100.0
         q = 1-p
 
         col = [int(q*col_min[0] + p*col_max[0]), int(q*col_min[1] + p*col_max[1]), int(q*col_min[2] + p*col_max[2])]

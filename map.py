@@ -1,5 +1,6 @@
 import random
 from scipy import stats as stats
+import numpy as np
 import math
 from tile import Tile
 
@@ -20,33 +21,26 @@ class Map():
             ycor = int(i/float(self.num_tiles))
             self.tiles.append(Tile(map=self, x=xcor, y=ycor))
 
-    def generate_terrain(self, nsteps=1, tile=None, change=None, rang=None):
+    def distort_terrain_reciprocal(self, nsteps=1, tile=None, change=None, rang=None):
 
-        # for each step add a focal distortion
-        for i in range(nsteps):
-            focal_change_in_height = change
-            range_of_change = rang
-            focal_tile = tile
+        if tile is None:
+            focal_tiles = np.random.choice(self.tiles, size=nsteps, replace=True)
+        else:
+            focal_tiles = [tile]*nsteps
 
-            if focal_tile is None:
-                focal_tile = random.choice(self.tiles)
-            if focal_change_in_height is None:
-                focal_change_in_height = random.random()*40 - 20
-            if range_of_change is None:
-                range_of_change = random.random()*9.0 + 1
+        if change is None:
+            focal_changes = np.random.rand(nsteps)*20
+        else:
+            focal_changes = [change]*nsteps
+        if rang is None:
+            focal_ranges = np.random.rand(nsteps)*10 + 3
+        else:
+            focal_ranges = [rang]*nsteps
 
-            for t in self.tiles:
-                distance = t.distance_from(focal_tile)
-                density = stats.norm.pdf(distance, loc=0, scale=range_of_change)
-                local_change_in_height = density * (focal_change_in_height/stats.norm.pdf(0, loc=0, scale=range_of_change))
-                t.ground_height = t.ground_height + local_change_in_height
-                # print "#####"
-                # print "focal change in height is {}".format(focal_change_in_height)
-                # print "range of change is {}".format(range_of_change)
-                # print "tile is {} from focus".format(distance)
-                # print "density here is {}".format(density)
-                # print "therefore local height change is {}".format(local_change_in_height)
-                # print "########"
+        for t in self.tiles:
+            distances = [t.distance_from(t2) for t2 in focal_tiles]
+            local_change = [c/((d/r)+1) for c, d, r in zip(focal_changes, distances, focal_ranges)]
+            t.ground_height += sum(local_change)
 
         # reset average tile height to be 0
         ground_heights = [tile.ground_height for tile in self.tiles]
@@ -62,9 +56,18 @@ class Map():
             for tile in self.tiles:
                 tile.ground_height = tile.ground_height/scale
 
+    def add_water(self):
+        for t in self.tiles:
+            if t.ground_height < 0:
+                t.water_depth = -t.ground_height
+            else:
+                t.water_depth = 0
+
     def print_tile_heights(self):
         print "###################"
         print "Tile heights:"
+        print "max: {}".format(max([tile.ground_height for tile in self.tiles]))
+        print "min: {}".format(min([tile.ground_height for tile in self.tiles]))
         for i in range(self.num_tiles):
             print [int(tile.ground_height) for tile in self.tiles[i*self.num_tiles:((i+1)*self.num_tiles)]]
         print "###################"
