@@ -18,8 +18,8 @@ class Tile():
         if (None in [self.xcor, self.ycor]):
             raise Exception("Tile {} has not been properly initialized").format(self)
 
-    def color(self):
-        if self.water_depth == 0:
+    def color(self, water=True):
+        if self.water_depth == 0 or water is False:
             col_min = [50, 20, 4]
             col_max = [254, 232, 210]
             p = (self.ground_height+50)/100.0
@@ -48,9 +48,9 @@ class Tile():
             d_x = d_x - self.map.num_tiles
         elif (d_x < -(self.map.num_tiles/2.0)):
             d_x = d_x + self.map.num_tiles
-        elif (d_y > (self.map.num_tiles/2.0)):
+        if (d_y > (self.map.num_tiles/2.0)):
             d_y = d_y - self.map.num_tiles
-        if (d_y < -(self.map.num_tiles/2.0)):
+        elif (d_y < -(self.map.num_tiles/2.0)):
             d_y = d_y + self.map.num_tiles
 
         #print "shortest vector: " + str([d_x, d_y])

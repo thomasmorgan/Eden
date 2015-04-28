@@ -13,6 +13,8 @@ class EdenApp():
     colors = ["red", "blue", "green"]
     tile_canvas_border = 5
 
+    draw_water = True
+
     def __init__(self, master):
         start = datetime.datetime.now()
         # open the window
@@ -22,7 +24,7 @@ class EdenApp():
         # make the map
         self.create_map(master)
         self.map.create_tiles()
-        self.map.distort_terrain_reciprocal(nsteps=100)
+        self.map.distort_terrain_cone(nsteps=500)
         self.map.add_water()
 
         # add the QUIT button
@@ -36,19 +38,62 @@ class EdenApp():
         button2 = Button(frame, text="PRINT", fg="red", command=self.print_map)
         button2.pack(side=LEFT)
 
+        up_button = Button(frame, text="UP", fg="red", command=self.move_map_up)
+        up_button.pack(side=LEFT)
+
+        down_button = Button(frame, text="DOWN", fg="red", command=self.move_map_down)
+        down_button.pack(side=LEFT)
+
+        left_button = Button(frame, text="LEFT", fg="red", command=self.move_map_left)
+        left_button.pack(side=LEFT)
+
+        right_button = Button(frame, text="RIGHT", fg="red", command=self.move_map_right)
+        right_button.pack(side=LEFT)
+
+        water_button = Button(frame, text="WATER", fg="red", command=self.toggle_water)
+        water_button.pack(side=LEFT)
+
         self.draw_tiles()
 
         stop = datetime.datetime.now()
 
         print stop-start
 
+    def move_map_up(self):
+        for t in self.map.tiles:
+            t.ycor += 1
+            if t.ycor == self.num_tiles:
+                t.ycor -= self.num_tiles
+        self.redraw_tiles()
+
+    def move_map_down(self):
+        for t in self.map.tiles:
+            t.ycor -= 1
+            if t.ycor < 0:
+                t.ycor += self.num_tiles
+        self.redraw_tiles()
+
+    def move_map_left(self):
+        for t in self.map.tiles:
+            t.xcor += 1
+            if t.xcor == self.num_tiles:
+                t.xcor -= self.num_tiles
+        self.redraw_tiles()
+
+    def move_map_right(self):
+        for t in self.map.tiles:
+            t.xcor -= 1
+            if t.xcor < 0:
+                t.xcor += self.num_tiles
+        self.redraw_tiles()
+
+    def toggle_water(self):
+        self.draw_water = not self.draw_water
+        self.redraw_tiles()
+
     def step(self):
-        self.map_canvas.delete("all")
-        self.map.distort_terrain_reciprocal(nsteps=20, rang=4)
-        # self.map.print_tile_heights()
-        # print "-------------------"
-        self.map.add_water()
-        self.draw_tiles()
+        self.map.distort_terrain_cone(nsteps=1)
+        self.redraw_tiles()
 
     def create_map(self, master):
         self.map = Map(total_width=self.total_width, num_tiles=self.num_tiles)
@@ -69,7 +114,12 @@ class EdenApp():
                                              tile.ycor*tile_size + self.tile_canvas_border,
                                              tile.xcor*tile_size + tile_size + self.tile_canvas_border,
                                              tile.ycor*tile_size + tile_size + self.tile_canvas_border,
-                                             fill=tile.color())
+                                             fill=tile.color(water=self.draw_water))
+
+    def redraw_tiles(self):
+        self.map_canvas.delete("all")
+        self.map.add_water()
+        self.draw_tiles()
 
 root = Tk()
 eden = EdenApp(master=root)

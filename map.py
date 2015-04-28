@@ -3,6 +3,7 @@ from scipy import stats as stats
 import numpy as np
 import math
 from tile import Tile
+from threading import Thread
 
 
 class Map():
@@ -21,25 +22,33 @@ class Map():
             ycor = int(i/float(self.num_tiles))
             self.tiles.append(Tile(map=self, x=xcor, y=ycor))
 
-    def distort_terrain_reciprocal(self, nsteps=1, tile=None, change=None, rang=None):
+    def distort_terrain_cone(self, nsteps=1, tile=None, change=None, scope=None):
 
         if tile is None:
             focal_tiles = np.random.choice(self.tiles, size=nsteps, replace=True)
         else:
             focal_tiles = [tile]*nsteps
 
+        #if change is None:
+            #focal_changes = np.random.rand(nsteps)*40 - 20
+        #else:
+            #focal_changes = [change]*nsteps
+        if scope is None:
+            focal_ranges = np.random.normal(0.0, 4, nsteps)
+            focal_ranges = [abs(f)+1 for f in focal_ranges]
+        else:
+            focal_ranges = [scope]*nsteps
+
+        direction_of_change = [-1] + [1]*9
         if change is None:
-            focal_changes = np.random.rand(nsteps)*20
+            focal_changes = [r*(random.random()*3)*random.choice(direction_of_change) for r in focal_ranges]
         else:
             focal_changes = [change]*nsteps
-        if rang is None:
-            focal_ranges = np.random.rand(nsteps)*10 + 3
-        else:
-            focal_ranges = [rang]*nsteps
 
         for t in self.tiles:
             distances = [t.distance_from(t2) for t2 in focal_tiles]
-            local_change = [c/((d/r)+1) for c, d, r in zip(focal_changes, distances, focal_ranges)]
+            local_change = [c - d*(c/r) for c, d, r in zip(focal_changes, distances, focal_ranges) if d < r]
+            #local_change = [(c/((d/r)+1)) for c, d, r in zip(focal_changes, distances, focal_ranges)]
             t.ground_height += sum(local_change)
 
         # reset average tile height to be 0
@@ -57,9 +66,10 @@ class Map():
                 tile.ground_height = tile.ground_height/scale
 
     def add_water(self):
+        water_level = 0
         for t in self.tiles:
-            if t.ground_height < 0:
-                t.water_depth = -t.ground_height
+            if t.ground_height < water_level:
+                t.water_depth = water_level - t.ground_height
             else:
                 t.water_depth = 0
 
