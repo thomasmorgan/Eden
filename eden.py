@@ -8,12 +8,13 @@ import datetime
 
 class EdenApp():
 
-    num_tiles = 100
+    num_tiles = pow(2, 7)
     total_width = 750
     colors = ["red", "blue", "green"]
     tile_canvas_border = 5
 
     draw_water = True
+    draw_gradient = False
 
     def __init__(self, master):
         start = datetime.datetime.now()
@@ -24,7 +25,9 @@ class EdenApp():
         # make the map
         self.create_map(master)
         self.map.create_tiles()
-        self.map.distort_terrain_cone(nsteps=500)
+        self.map.create_terrain(smoothness=0.4)
+        # for i in range(5):
+        #     self.map.distort_terrain(nsteps=1000, type="cone", random_walk=True, change=1, scope=4)
         self.map.add_water()
 
         # add the QUIT button
@@ -52,6 +55,9 @@ class EdenApp():
 
         water_button = Button(frame, text="WATER", fg="red", command=self.toggle_water)
         water_button.pack(side=LEFT)
+
+        grad_button = Button(frame, text="GRAD", fg="red", command=self.toggle_gradient)
+        grad_button.pack(side=LEFT)
 
         self.draw_tiles()
 
@@ -91,8 +97,12 @@ class EdenApp():
         self.draw_water = not self.draw_water
         self.redraw_tiles()
 
+    def toggle_gradient(self):
+        self.draw_gradient = not self.draw_gradient
+        self.redraw_tiles()
+
     def step(self):
-        self.map.distort_terrain_cone(nsteps=1)
+        self.map.distort_terrain(nsteps=5, type="reciprocal", random_walk=True, scope=0.5, change=20)
         self.redraw_tiles()
 
     def create_map(self, master):
@@ -104,21 +114,24 @@ class EdenApp():
 
     def print_map(self):
         self.map.print_tile_coords()
-        self.map.print_tile_distances_from(self.map.tiles[49])
+        self.map.print_tile_distances_from(self.map.tiles[0])
         self.map.print_tile_heights()
 
     def draw_tiles(self):
         tile_size = self.total_width/self.num_tiles
         for tile in self.map.tiles:
-            self.map_canvas.create_rectangle(tile.xcor*tile_size + self.tile_canvas_border,
-                                             tile.ycor*tile_size + self.tile_canvas_border,
-                                             tile.xcor*tile_size + tile_size + self.tile_canvas_border,
-                                             tile.ycor*tile_size + tile_size + self.tile_canvas_border,
-                                             fill=tile.color(water=self.draw_water))
+            tile.rectangle = self.map_canvas.create_rectangle(
+                tile.xcor*tile_size + self.tile_canvas_border,
+                tile.ycor*tile_size + self.tile_canvas_border,
+                tile.xcor*tile_size + tile_size + self.tile_canvas_border,
+                tile.ycor*tile_size + tile_size + self.tile_canvas_border,
+                fill=tile.color(water=self.draw_water, gradient=self.draw_gradient))
 
     def redraw_tiles(self):
         self.map_canvas.delete("all")
         self.map.add_water()
+        # for tile in self.map.tiles:
+        #     self.map_canvas.itemconfigure(tile.rectangle, fill=tile.color(water=self.draw_water))
         self.draw_tiles()
 
 root = Tk()
