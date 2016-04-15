@@ -15,13 +15,9 @@ class World():
 
     def create_tiles(self):
         self.tiles = []
-        self.tile_list = []
         for x in range(settings.world_tile_width):
-            this_row_of_tiles = []
             for y in range(settings.world_tile_height):
-                this_row_of_tiles.append(Tile(x=x, y=y))
-            self.tiles.append(this_row_of_tiles)
-            self.tile_list.extend(this_row_of_tiles)
+                self.tiles.append(Tile(x=x, y=y))
 
     def get_coordinate_set(self, x_step=1, y_step=1):
         xs = [x*x_step for x in range(settings.world_tile_width/x_step)]
@@ -29,11 +25,10 @@ class World():
         return[xs, ys]
 
     def create_terrain(self):
-
         # initialize the first four tiles
         x_step = settings.world_tile_width/2
         y_step = settings.world_tile_height/2
-        coords = self.get_coordinate_set(x_step=x_step, y_step=y_step)
+        coords = [[0, x_step], [0, y_step]]
         for x in coords[0]:
             for y in coords[1]:
                 tile = self.tile_at(x=x, y=y)
@@ -41,81 +36,93 @@ class World():
 
         # now loop through all other tiles
         while True:
-            # half the step size
+            # halve the step size
             x_step = x_step/2
             y_step = y_step/2
-            distance = pow(pow(x_step, 2) + pow(y_step, 2), 0.5)
-            mean_weight = settings.smoothness_buffer - distance*settings.smoothness_rate
-            mean_weight = max(min(mean_weight, 5), -5)
-            if mean_weight == 5:
-                mean_weight = 1
-            elif mean_weight == -5:
-                mean_weight = 0
-            else:
-                mean_weight = np.exp(mean_weight)/(1+np.exp(mean_weight))
+            # if step size = 0 you are done
             if x_step == 0 and y_step == 0:
-                # if step size is down to 0 you are done!
-                assert None not in [t.ground_height for t in self.tile_list]
                 break
+            # if only one = 0, put it back to 1
+            if x_step == 0:
+                x_step = 1
+            if y_step == 0:
+                y_step = 1
 
-            # adjust coordinates to get next tiles
+            # calculate distance and weighting:
+            distance = pow(pow(x_step, 2) + pow(y_step, 2), 0.5)
+            influence = self.height_influence(distance)
+
+            # shift diagonally to get the next tiles
             coords = [[x+x_step for x in coords[0]], [y+y_step for y in coords[1]]]
             for x in coords[0]:
                 for y in coords[1]:
                     tile = self.tile_at(x=x, y=y)
                     if tile.ground_height is None:
-                        if mean_weight == 0:
+                        if influence == 0:
                             tile.ground_height = self.random_ground_height()
                         else:
                             neighbors = [self.tile_at(x=x+x_step, y=y+y_step),
                                          self.tile_at(x=x-x_step, y=y+y_step),
                                          self.tile_at(x=x+x_step, y=y-y_step),
                                          self.tile_at(x=x-x_step, y=y-y_step)]
-                            neighbor_ground_heights = [n.ground_height for n in neighbors]
-                            mean_neighbor_ground_height = sum(neighbor_ground_heights)/4
-                            if mean_weight == 1:
-                                tile.ground_height = mean_neighbor_ground_height
-                            else:
-                                tile.ground_height = mean_weight*mean_neighbor_ground_height + (1-mean_weight)*self.random_ground_height()
+                            tile.ground_height = sum([n.ground_height*influence for n in neighbors] +
+                                                     [self.random_ground_height()*(1-4*influence)])
+
+                            
+                            # neighbor_ground_heights = [n.ground_height for n in neighbors]
+                            # mean_neighbor_ground_height = sum(neighbor_ground_heights)/4
+                            # if mean_weight == 1:
+                            #     tile.ground_height = mean_neighbor_ground_height
+                            # else:
+                            #     tile.ground_height = mean_weight*mean_neighbor_ground_height + (1-mean_weight)*self.random_ground_height()
 
             # get next set of tiles
-            if x_step == 0:
-                x_step = 1
-            if y_step == 0:
-                y_step = 1
             coords = self.get_coordinate_set(x_step=x_step, y_step=y_step)
+            # calculate distance and weighting:
+            x_influence = self.height_influence(x_step)
+            y_influence = self.height_influence(y_step)
+
             for x in coords[0]:
                 for y in coords[1]:
                     tile = self.tile_at(x=x, y=y)
                     if tile.ground_height is None:
-                        if mean_weight == 0:
+                        if x_influence == 0 and y_influence == 0:
                             tile.ground_height = self.random_ground_height()
                         else:
-                            neighbors = [self.tile_at(x=x, y=y+y_step),
-                                         self.tile_at(x=x, y=y-y_step),
-                                         self.tile_at(x=x+x_step, y=y),
-                                         self.tile_at(x=x-x_step, y=y)]
-                            neighbor_ground_heights = [n.ground_height for n in neighbors]
-                            mean_neighbor_ground_height = sum(neighbor_ground_heights)/4
-                            if mean_weight == 1:
-                                tile.ground_height = mean_neighbor_ground_height
-                            else:
-                                tile.ground_height = mean_weight*mean_neighbor_ground_height + (1-mean_weight)*self.random_ground_height()
+                            y_neighbors = [self.tile_at(x=x, y=y+y_step),
+                                           self.tile_at(x=x, y=y-y_step)]
+                            x_neighbors = [self.tile_at(x=x+x_step, y=y),
+                                           self.tile_at(x=x-x_step, y=y)]
+                            tile.ground_height = sum([n.ground_height*x_influence for n in x_neighbors] +
+                                                     [n.ground_height*y_influence for n in y_neighbors] +
+                                                     [self.random_ground_height()*(1-2*x_influence-2*y_influence)])
+
+    def height_influence(self, distance):
+        influence = settings.smoothness_buffer - distance*settings.smoothness_rate
+        influence = max(min(influence, 5), -5)
+        if influence == 5:
+            influence = 1.0
+        elif influence == -5:
+            influence = 0.0
+        else:
+            influence = np.exp(influence)/(1+np.exp(influence))
+        return influence/4
+
 
     def random_ground_height(self):
         return np.random.beta(settings.beta_a, settings.beta_b)*(settings.max_ground_height - settings.min_ground_height) + settings.min_ground_height
 
     def normalize_terrain(self):
         # reset average tile height to be 0 and scale heights within boundaries.
-        heights = [t.ground_height for t in self.tile_list]
+        heights = [t.ground_height for t in self.tiles]
         mean_height = sum(heights)/len(heights)
-        for t in self.tile_list:
+        for t in self.tiles:
             t.ground_height = t.ground_height - mean_height
 
-        heights = [t.ground_height for t in self.tile_list]
+        heights = [t.ground_height for t in self.tiles]
 
         scale = max([1, min(heights)/settings.min_ground_height, max(heights)/settings.max_ground_height])
-        for t in self.tile_list:
+        for t in self.tiles:
             t.ground_height = t.ground_height/scale
 
     def distort_terrain(self, type="cone", nsteps=1, tile=None, change=None, scope=None, random_walk=False, step_size=5):
@@ -174,7 +181,7 @@ class World():
         self.normalize_terrain()
 
     def create_oceans(self):
-        heights = [t.ground_height for t in self.tile_list]
+        heights = [t.ground_height for t in self.tiles]
         self.water_level = min(heights)
         water_change = 10.0
 
@@ -184,11 +191,11 @@ class World():
                 self.water_level -= water_change
                 water_change = water_change/10
 
-        for t in self.tile_list:
+        for t in self.tiles:
             t.water_depth = max(self.water_level - t.ground_height, 0)
 
     def water_volume(self):
-        return sum([(self.water_level - t.ground_height) for t in self.tile_list if t.ground_height < self.water_level])
+        return sum([(self.water_level - t.ground_height) for t in self.tiles if t.ground_height < self.water_level])
 
     def at_threshold(self):
         heights = [t.height for t in self.tiles]
@@ -227,13 +234,13 @@ class World():
         while y < 0:
             y += settings.world_tile_height
 
-        return self.tiles[x][y]
+        return self.tiles[x + y*settings.world_tile_width]
 
     def print_tile_heights(self):
         print "###################"
         print "Tile heights:"
-        print "max: {}".format(max([tile.ground_height for tile in self.tile_list]))
-        print "min: {}".format(min([tile.ground_height for tile in self.tile_list]))
+        print "max: {}".format(max([tile.ground_height for tile in self.tiles]))
+        print "min: {}".format(min([tile.ground_height for tile in self.tiles]))
         for r in self.tiles:
             print [int(t.ground_height) for t in r]
         print "###################"
@@ -241,8 +248,8 @@ class World():
     def print_ocean_depths(self):
         print "###################"
         print "Ocean Depths:"
-        print "max: {}".format(max([tile.water_depth for tile in self.tile_list]))
-        print "min: {}".format(min([tile.water_depth for tile in self.tile_list]))
+        print "max: {}".format(max([tile.water_depth for tile in self.tiles]))
+        print "min: {}".format(min([tile.water_depth for tile in self.tiles]))
         for r in self.tiles:
             print [int(t.water_depth) for t in r]
         print "###################"

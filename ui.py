@@ -48,23 +48,18 @@ class UI():
     def create_tiles(self):
         self.map.delete("all")
         self.icons = []
-        self.icon_list = []
-        for x in self.world.tiles:
-            row_of_icons = []
-            for t in x:
-                row_of_icons.append(self.map.create_rectangle(
-                    t.x_min,
-                    t.y_min,
-                    t.x_max,
-                    t.y_max,
-                    fill="",
-                    outline=""))
-            self.icons.append(row_of_icons)
-            self.icon_list.extend(row_of_icons)
+        for t in self.world.tiles:
+            self.icons.append(self.map.create_rectangle(
+                t.x_min,
+                t.y_min,
+                t.x_max,
+                t.y_max,
+                fill="",
+                outline=""))
 
     def color_tiles(self):
         for x in range(settings.world_tile_width*settings.world_tile_height):
-            self.map.itemconfigure(self.icon_list[x], fill=self.tile_color(self.world.tile_list[x]))
+            self.map.itemconfigure(self.icons[x], fill=self.tile_color(self.world.tiles[x]))
                 # if tile.water_depth == 0.0:
                 #     if self.map.tile_at(x=tile.xcor, y=tile.ycor-1).water_depth > 0.0:
                 #         self.map.create_rectangle(tile.x_min, tile.y_min, tile.x_max, tile.y_min+self.coast_width, fill=self.coast_color, outline="")
