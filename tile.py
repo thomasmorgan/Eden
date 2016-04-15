@@ -13,10 +13,10 @@ class Tile():
         self.y = y
         self.ground_height = None
 
-        self.x_min = x*settings.tile_width + settings.tile_canvas_border,
-        self.y_min = y*settings.tile_height + settings.tile_canvas_border,
-        self.x_max = (x+1)*settings.tile_width + settings.tile_canvas_border,
-        self.y_max = (y+1)*settings.tile_height + settings.tile_canvas_border
+        self.x_min = x*settings.tile_width + settings.map_border,
+        self.y_min = y*settings.tile_height + settings.map_border,
+        self.x_max = (x+1)*settings.tile_width + settings.map_border,
+        self.y_max = (y+1)*settings.tile_height + settings.map_border
 
     def gradient(self):
         neighbors = [self.map.tile_at(x=self.xcor+1, y=self.ycor),

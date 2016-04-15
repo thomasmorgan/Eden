@@ -48,15 +48,15 @@ sun_strength = 1.0
 ######  MAP SETTINGS  ######
 ######################## """
 
-# width of map
-map_canvas_width = 750
-# height of map
-map_canvas_height = 750
-# width of border around tiles
-tile_canvas_border = 5
+# width of map in px
+map_width = 750
+# height of map in px
+map_height = 750
+# width of border around map in px
+map_border = 0
 # size of each tile
-tile_height = map_canvas_height/float(world_tile_height)
-tile_width = map_canvas_width/float(world_tile_width)
+tile_height = map_height/float(world_tile_height)
+tile_width = map_width/float(world_tile_width)
 # boolean, draw water?
 draw_water = True
 # what mode are we drawing
