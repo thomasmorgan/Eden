@@ -1,5 +1,6 @@
 from Tkinter import *
 import settings
+import datetime
 
 
 class UI():
@@ -11,7 +12,15 @@ class UI():
         self.world = world
         self.add_buttons()
         self.add_map_canvas()
-        self.draw_tiles()
+
+        b1 = datetime.datetime.now()
+        self.create_tiles()
+        b2 = datetime.datetime.now()
+        print b2-b1
+        self.color_tiles()
+        b3 = datetime.datetime.now()
+        print b3-b2
+        
 
     def add_buttons(self):
         reset_button = Button(self.frame, text="RESET", fg="red", command=self.app.reset_world)
@@ -37,17 +46,26 @@ class UI():
                                  highlightthickness=0)
         self.map_canvas.pack(side=LEFT)
 
-    def draw_tiles(self):
+    def create_tiles(self):
         self.map_canvas.delete("all")
-        for row in self.world.tiles:
-            for t in row:
-                t.icon = self.map_canvas.create_rectangle(
+        self.icons = []
+        self.icon_list = []
+        for x in self.world.tiles:
+            row_of_icons = []
+            for t in x:
+                row_of_icons.append(self.map_canvas.create_rectangle(
                     t.x_min,
                     t.y_min,
                     t.x_max,
                     t.y_max,
-                    fill=self.tile_color(t),
-                    outline="")
+                    fill="",
+                    outline=""))
+            self.icons.append(row_of_icons)
+            self.icon_list.extend(row_of_icons)
+
+    def color_tiles(self):
+        for x in range(settings.world_tile_width*settings.world_tile_height):
+            self.map_canvas.itemconfigure(self.icon_list[x], fill=self.tile_color(self.world.tile_list[x]))
                 # if tile.water_depth == 0.0:
                 #     if self.map.tile_at(x=tile.xcor, y=tile.ycor-1).water_depth > 0.0:
                 #         self.map_canvas.create_rectangle(tile.x_min, tile.y_min, tile.x_max, tile.y_min+self.coast_width, fill=self.coast_color, outline="")
