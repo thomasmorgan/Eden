@@ -154,7 +154,7 @@ class World():
         elif (type == "reciprocal"):
             for t in self.tiles:
                 distances = [t.distance_from(t2) for t2 in focal_tiles]
-                local_change = [c/((d/pow(r,2))+1) for c, d, r in zip(focal_changes, distances, focal_ranges)]
+                local_change = [c/((d/pow(r, 2))+1) for c, d, r in zip(focal_changes, distances, focal_ranges)]
                 t.height += sum(local_change)
         elif (type == "normal"):
             for t in self.tiles:
@@ -168,13 +168,6 @@ class World():
             raise Exception("Unknown terrain distort type: {}".format(type))
 
         self.normalize_terrain()
-
-    def calculate_temperature(self):
-        for tile in self.tiles:
-            tile.calculate_temperature()
-
-    def calculate_wind(self):
-        pass
 
     def create_oceans(self):
         heights = [t.ground_height for t in self.tile_list]
