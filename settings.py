@@ -30,9 +30,14 @@ max_ground_height = 50
 # lowest possible ground height
 # must be < 0
 min_ground_height = -50
-# how should random tile ground heights be generated?
-# options are "normal", "uniform"
-random_ground_mode = "uniform"
+# how are random ground heights generated? beta_a and beta_b are the two parameters of a beta distribution
+# a=b=1 -> uniform
+# a=b > 1 -> increasingly normal
+# a=b < 1 -> u-shaped
+# a > b -> negative skew
+# b>a -> positive skew
+beta_a = 1.2
+beta_b = 2
 
 """ sun properties """
 # how hot is the sun
