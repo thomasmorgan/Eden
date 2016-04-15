@@ -30,6 +30,9 @@ max_ground_height = 50
 # lowest possible ground height
 # must be < 0
 min_ground_height = -50
+# how should random tile ground heights be generated?
+# options are "normal", "uniform"
+random_ground_mode = "uniform"
 
 """ sun properties """
 # how hot is the sun

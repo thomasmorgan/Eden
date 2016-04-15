@@ -94,9 +94,12 @@ class World():
                         tile.ground_height = mean_weight*mean_neighbor_ground_height + (1-mean_weight)*self.random_ground_height()
 
     def random_ground_height(self):
-        height_range = settings.max_ground_height - settings.min_ground_height
-        mean_height = (settings.max_ground_height - settings.min_ground_height)/2 + settings.min_ground_height
-        return np.random.normal(loc=mean_height, scale=height_range/3)
+        if settings.random_ground_mode == "normal":
+            height_range = settings.max_ground_height - settings.min_ground_height
+            mean_height = (settings.max_ground_height - settings.min_ground_height)/2 + settings.min_ground_height
+            return np.random.normal(loc=mean_height, scale=height_range/3)
+        if settings.random_ground_mode == "uniform":
+            return random.random()*(settings.max_ground_height - settings.min_ground_height) + settings.min_ground_height
 
     def normalize_terrain(self):
         # reset average tile height to be 0 and scale heights within boundaries.
