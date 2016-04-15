@@ -24,7 +24,10 @@ class EdenApp():
         self.frame.pack()
 
         # create the ui
+        ui_start = datetime.datetime.now()
         self.ui = UI(self.master, self, self.frame, self.world)
+        ui_stop = datetime.datetime.now()
+        print ui_stop - ui_start
 
         stop = datetime.datetime.now()
         print stop-start
