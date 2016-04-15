@@ -32,34 +32,6 @@ class EdenApp():
         stop = datetime.datetime.now()
         print stop-start
 
-    def move_map_up(self):
-        for t in self.map.tiles:
-            t.ycor += 1
-            if t.ycor == self.num_tiles:
-                t.ycor -= self.num_tiles
-        self.draw_tiles()
-
-    def move_map_down(self):
-        for t in self.map.tiles:
-            t.ycor -= 1
-            if t.ycor < 0:
-                t.ycor += self.num_tiles
-        self.draw_tiles()
-
-    def move_map_left(self):
-        for t in self.map.tiles:
-            t.xcor += 1
-            if t.xcor == self.num_tiles:
-                t.xcor -= self.num_tiles
-        self.draw_tiles()
-
-    def move_map_right(self):
-        for t in self.map.tiles:
-            t.xcor -= 1
-            if t.xcor < 0:
-                t.xcor += self.num_tiles
-        self.draw_tiles()
-
     def toggle_water(self):
         self.draw_water = not self.draw_water
         self.draw_tiles()
