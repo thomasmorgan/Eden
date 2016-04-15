@@ -8,17 +8,10 @@ import settings
 
 class World():
 
-    tiles = None
-    num_tiles = None
-    water = 0.0
-    water_level = 0.0
-    sun_strength = 1.0
-    degrees_per_altitude = 1.0
-
     def __init__(self):
         self.create_tiles()
         self.create_terrain()
-        self.normalize_terrain()
+        #self.normalize_terrain()
         self.create_oceans()
 
     def create_tiles(self):
@@ -193,7 +186,7 @@ class World():
             self.water_level += water_change
             if self.water_volume() > settings.total_water_volume:
                 self.water_level -= water_change
-                water_change = water_change/2
+                water_change = water_change/10
 
         for t in self.tile_list:
             t.water_depth = max(self.water_level - t.ground_height, 0)
