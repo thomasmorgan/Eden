@@ -13,7 +13,10 @@ class EdenApp():
         self.master = master
 
         # create the world object
+        world_start = datetime.datetime.now()
         self.world = World()
+        world_stop = datetime.datetime.now()
+        print world_stop - world_start
 
         # create the app
         master.wm_title("Eden")
