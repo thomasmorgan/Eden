@@ -11,7 +11,6 @@ class World():
     def __init__(self):
         self.create_tiles()
         self.create_terrain()
-        #self.normalize_terrain()
         self.create_oceans()
 
     def create_tiles(self):
@@ -30,8 +29,6 @@ class World():
         return[xs, ys]
 
     def create_terrain(self):
-        self.random_ground_heights = np.random.beta(settings.beta_a, settings.beta_b, settings.world_tile_width*settings.world_tile_height)
-        self.random_ground_heights = [a*(settings.max_ground_height - settings.min_ground_height) + settings.min_ground_height for a in self.random_ground_heights]
 
         # initialize the first four tiles
         x_step = settings.world_tile_width/2
@@ -40,7 +37,7 @@ class World():
         for x in coords[0]:
             for y in coords[1]:
                 tile = self.tile_at(x=x, y=y)
-                tile.ground_height = self.random_ground_height(tile)
+                tile.ground_height = self.random_ground_height()
 
         # now loop through all other tiles
         while True:
@@ -68,7 +65,7 @@ class World():
                     tile = self.tile_at(x=x, y=y)
                     if tile.ground_height is None:
                         if mean_weight == 0:
-                            tile.ground_height = self.random_ground_height(tile)
+                            tile.ground_height = self.random_ground_height()
                         else:
                             neighbors = [self.tile_at(x=x+x_step, y=y+y_step),
                                          self.tile_at(x=x-x_step, y=y+y_step),
@@ -79,7 +76,7 @@ class World():
                             if mean_weight == 1:
                                 tile.ground_height = mean_neighbor_ground_height
                             else:
-                                tile.ground_height = mean_weight*mean_neighbor_ground_height + (1-mean_weight)*self.random_ground_height(tile)
+                                tile.ground_height = mean_weight*mean_neighbor_ground_height + (1-mean_weight)*self.random_ground_height()
 
             # get next set of tiles
             if x_step == 0:
@@ -92,7 +89,7 @@ class World():
                     tile = self.tile_at(x=x, y=y)
                     if tile.ground_height is None:
                         if mean_weight == 0:
-                            tile.ground_height = self.random_ground_height(tile)
+                            tile.ground_height = self.random_ground_height()
                         else:
                             neighbors = [self.tile_at(x=x, y=y+y_step),
                                          self.tile_at(x=x, y=y-y_step),
@@ -103,11 +100,10 @@ class World():
                             if mean_weight == 1:
                                 tile.ground_height = mean_neighbor_ground_height
                             else:
-                                tile.ground_height = mean_weight*mean_neighbor_ground_height + (1-mean_weight)*self.random_ground_height(tile)
+                                tile.ground_height = mean_weight*mean_neighbor_ground_height + (1-mean_weight)*self.random_ground_height()
 
-    def random_ground_height(self, tile):
-        index = tile.x*settings.world_tile_width + tile.y
-        return self.random_ground_heights[index]
+    def random_ground_height(self):
+        return np.random.beta(settings.beta_a, settings.beta_b)*(settings.max_ground_height - settings.min_ground_height) + settings.min_ground_height
 
     def normalize_terrain(self):
         # reset average tile height to be 0 and scale heights within boundaries.
