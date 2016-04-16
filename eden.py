@@ -1,5 +1,4 @@
 from Tkinter import *
-from tile import Tile
 from world import World
 from ui import UI
 import settings
@@ -13,10 +12,7 @@ class EdenApp():
         self.master = master
 
         # create the world object
-        world_start = datetime.datetime.now()
         self.world = World()
-        world_stop = datetime.datetime.now()
-        print world_stop - world_start
 
         # create the app
         master.wm_title("Eden")
@@ -24,10 +20,7 @@ class EdenApp():
         self.frame.pack()
 
         # create the ui
-        ui_start = datetime.datetime.now()
         self.ui = UI(self.master, self, self.frame, self.world)
-        ui_stop = datetime.datetime.now()
-        print ui_stop - ui_start
 
         stop = datetime.datetime.now()
         print stop-start
