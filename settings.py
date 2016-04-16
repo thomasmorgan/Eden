@@ -16,6 +16,8 @@ Stefan_Boltzman_constant = 5.6703*pow(10, -8)
 # circumference of world (km)
 # 40000 = earth
 world_circumference = 40000
+# radius of world
+world_radius = world_circumference/(1*math.pi)
 # how wide is the world (in tiles)
 # this absolutely needs to be a power of 2!
 world_tile_width = pow(2, 7)
@@ -32,11 +34,11 @@ total_water_volume = 1386000000
 # how smooth is the world
 # the buffer sets a value at which different areas will tend to have similar heights
 # a high value will produce things like plateaus
-# for a chaotic world set the buffer to -10
+# for a chaotic world set the buffer to -5
 # the units are distances in tiles
 smoothness_buffer = 10
-# the rate affects the increase in independce of different areas as you cross the buffer.
-# high values will produce steep cliffs
+# the rate affects the increase in independce of different areas as their distance increases
+# though change might not be obvious at first if the buffer is high
 # it is unitless and ranges from 0 to +inf
 # for a smooth world set the rate to 0
 smoothness_rate = 1
