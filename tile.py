@@ -27,16 +27,6 @@ class Tile():
         diffs = [abs(t.height-self.height) for t in neighbors]
         return sum(diffs)/len(diffs)
 
-    def calculate_temperature(self):
-        suns_heat = self.map.sun_strength*math.sin(self.ycor/float(self.map.num_tiles)*math.pi)
-        if self.water_depth == 0:
-            reduction_due_to_water = 0
-        else:
-            reduction_due_to_water = (1-(1/(1+float(self.water_depth)/3)))*0.5
-        self.temperature = self.base_temp + self.temp_from_sun*suns_heat*(1-reduction_due_to_water)
-        if self.height > self.map.water_level:
-            self.temperature -= (self.height - self.map.water_level)*(self.map.degrees_per_altitude)
-
     def distance_from(self, other_tile=None, x=None, y=None):
         if other_tile is not None:
             d_x = other_tile.xcor - self.xcor
