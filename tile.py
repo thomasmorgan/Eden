@@ -1,5 +1,5 @@
-import math
 import settings
+import math
 
 
 class Tile():
@@ -9,8 +9,10 @@ class Tile():
         self.y = y
         self.ground_height = None
         self.water_depth = 0.0
-        self.solar_energy = None
-        self.temp = None
+        self.solar_energy_per_day = (1-settings.atmosphere_albedo)*math.cos(abs(self.y - (settings.world_tile_height-1)/2.0)/((settings.world_tile_height-1)/2.0)*(math.pi/2))*settings.max_solar_energy_per_tile
+        self.thermal_energy = settings.initial_temperature*settings.atmosphere_heat_constant*settings.atmosphere_mass_per_tile
+        self.temperature = None
+        self.calculate_temperature()
         self.wind = None
         self.wind_speed = None
 
@@ -47,3 +49,6 @@ class Tile():
         d = pow((pow(d_x, 2) + pow(d_y, 2)), 0.5)
 
         return d
+
+    def calculate_temperature(self):
+        self.temperature = self.thermal_energy/(settings.atmosphere_heat_constant*settings.atmosphere_mass_per_tile)
