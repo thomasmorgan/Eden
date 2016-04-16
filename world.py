@@ -34,7 +34,7 @@ class World():
         for x in coords[0]:
             for y in coords[1]:
                 cell = self.cell_at(x=x, y=y)
-                cell.ground_height = self.random_ground_height()
+                cell.land.height = self.random_ground_height()
 
         # now loop through all other cells
         while True:
@@ -59,16 +59,16 @@ class World():
             for x in coords[0]:
                 for y in coords[1]:
                     cell = self.cell_at(x=x, y=y)
-                    if cell.ground_height is None:
+                    if cell.land.height is None:
                         if influence == 0:
-                            cell.ground_height = self.random_ground_height()
+                            cell.land.height = self.random_ground_height()
                         else:
                             neighbors = [self.cell_at(x=x+x_step, y=y+y_step),
                                          self.cell_at(x=x-x_step, y=y+y_step),
                                          self.cell_at(x=x+x_step, y=y-y_step),
                                          self.cell_at(x=x-x_step, y=y-y_step)]
-                            cell.ground_height = sum([n.ground_height*influence for n in neighbors] +
-                                                     [self.random_ground_height()*(1-4*influence)])
+                            cell.land.height = sum([n.land.height*influence for n in neighbors] +
+                                                   [self.random_ground_height()*(1-4*influence)])
 
             # get next set of cells
             coords = self.get_coordinate_set(x_step=x_step, y_step=y_step)
@@ -79,22 +79,22 @@ class World():
             for x in coords[0]:
                 for y in coords[1]:
                     cell = self.cell_at(x=x, y=y)
-                    if cell.ground_height is None:
+                    if cell.land.height is None:
                         if x_influence == 0 and y_influence == 0:
-                            cell.ground_height = self.random_ground_height()
+                            cell.land.height = self.random_ground_height()
                         else:
                             y_neighbors = [self.cell_at(x=x, y=y+y_step),
                                            self.cell_at(x=x, y=y-y_step)]
                             x_neighbors = [self.cell_at(x=x+x_step, y=y),
                                            self.cell_at(x=x-x_step, y=y)]
-                            cell.ground_height = sum([n.ground_height*x_influence for n in x_neighbors] +
-                                                     [n.ground_height*y_influence for n in y_neighbors] +
-                                                     [self.random_ground_height()*(1-2*x_influence-2*y_influence)])
+                            cell.land.height = sum([n.land.height*x_influence for n in x_neighbors] +
+                                                   [n.land.height*y_influence for n in y_neighbors] +
+                                                   [self.random_ground_height()*(1-2*x_influence-2*y_influence)])
         self.normalize_terrain()
 
     def create_oceans(self):
         """ fill the oceans """
-        heights = [t.ground_height for t in self.cells]
+        heights = [t.land.height for t in self.cells]
         self.water_level = min(heights)
         water_change = 10.0
 
@@ -105,7 +105,7 @@ class World():
                 water_change = water_change/2
 
         for t in self.cells:
-            t.water_depth = max(self.water_level - t.ground_height, 0)
+            t.water_depth = max(self.water_level - t.land.height, 0)
 
     def calculate_wind(self):
         """ use temperature differentials to determine the wind speed at each cell """
@@ -181,25 +181,27 @@ class World():
 
             cell.thermal_energy = kept_energy + gained_energy_x + gained_energy_y + gained_energy_x_y
 
-    def radiate_heat_into_space(self):
+    def radiate_energy(self):
         """ lose thermal energy into space """
-        for t in self.cells:
-            t.thermal_energy = t.thermal_energy - (settings.thermal_energy_radiated_per_day_per_kelvin*pow(t.temperature, 4))*(1-settings.atmosphere_albedo)
+        for c in self.cells:
+            time = 60*60*40
+            area = pow(settings.cell_size*1000, 2)
+            c.land.thermal_energy -= settings.stefan_boltzmann_constant*pow(c.land.temperature, 4)*time*area/1000
 
-    def absorb_heat_from_sun(self):
+    def absorb_energy_from_sun(self, sun):
         """ gain thermal energy from the sun """
-        for t in self.cells:
-            t.thermal_energy = t.thermal_energy + t.solar_energy_per_day
+        for c in self.cells:
+            c.land.thermal_energy += sun.max_solar_energy_per_cell*c.apparent_size_from_sun
 
-    def absorb_heat_from_core(self):
+    def absorb_energy_from_core(self):
         """ gain thermal energy from within the earth """
-        for t in self.cells:
-            t.thermal_energy = t.thermal_energy + settings.thermal_energy_from_core_per_day_per_tile
+        for c in self.cells:
+            c.land.thermal_energy += settings.thermal_energy_from_core_per_day_per_cell
 
     def calculate_temperature(self):
         """ calculate temperature given thermal energy """
-        for t in self.cells:
-            t.calculate_temperature()
+        for c in self.cells:
+            c.land.calculate_temperature()
 
     """ #####################
     #### SUPPORT METHODS ####
@@ -233,16 +235,16 @@ class World():
 
     def normalize_terrain(self):
         """ adjust cell heights such that the average is 0 and it fits within the specified bounds"""
-        heights = [t.ground_height for t in self.cells]
+        heights = [t.land.height for t in self.cells]
         mean_height = sum(heights)/len(heights)
         for t in self.cells:
-            t.ground_height = t.ground_height - mean_height
+            t.land.height = t.land.height - mean_height
 
-        heights = [t.ground_height for t in self.cells]
+        heights = [t.land.height for t in self.cells]
 
         scale = max([1, min(heights)/settings.min_ground_height, max(heights)/settings.max_ground_height])
         for t in self.cells:
-            t.ground_height = t.ground_height/scale
+            t.land.height = t.land.height/scale
 
     def cell_at(self, x, y):
         """ Get the cell at the specified coordinates
@@ -259,4 +261,4 @@ class World():
         return self.cells[x + y*settings.world_cell_width]
 
     def water_volume(self):
-        return sum([(self.water_level - t.ground_height) for t in self.cells if t.ground_height < self.water_level])*pow(settings.cell_size, 2)
+        return sum([(self.water_level - t.land.height) for t in self.cells if t.land.height < self.water_level])*pow(settings.cell_size, 2)

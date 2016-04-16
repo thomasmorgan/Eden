@@ -5,7 +5,7 @@ import math
 ######################## """
 
 # determines rate of thermal radiation
-Stefan_Boltzman_constant = 5.6703*pow(10, -8)
+stefan_boltzmann_constant = 5.6703*pow(10, -8)
 
 
 """ ########################
@@ -57,15 +57,25 @@ min_ground_height = -10
 beta_a = 1.2
 beta_b = 4
 
+""" land properties """
+# how dense is the land (kg/km^3)
+# true value of earth is 5515*pow(10, 9)
+land_density = 5515*pow(10, 9)
+# how thick is the land
+land_depth = 0.005
+# how much energy is needed to heat it (kJ per kg per K)
+land_specific_heat = 1.0
+
 """ world energy budgets """
 # initial temp (K) (273 = 0C)
 initial_temperature = 283
 # radiation rate (1 = black body, 0 = none)
 thermal_radiation_rate = 0.0005
 # thermal energy lost per day (kJ per cell per day per kelvin)
-thermal_energy_radiated_per_day_per_kelvin = thermal_radiation_rate*(Stefan_Boltzman_constant*pow(cell_size*1000, 2)*60*60*24)
+thermal_energy_radiated_per_day_per_kelvin = thermal_radiation_rate*(stefan_boltzmann_constant*pow(cell_size*1000, 2)*60*60*24)
 # rate of core energy production (kJ per cell per day)
-thermal_energy_from_core_per_day_per_cell = 4.1*pow(10, 15)/(world_cell_height*world_cell_width)
+thermal_energy_from_core_per_day_per_cell = 4.7*pow(10, 9)*(60*60*24)/(world_cell_height*world_cell_width)
+
 
 """ atmosphere settings """
 # what proportion of the suns energy bounces off the atmosphere?

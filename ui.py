@@ -8,8 +8,7 @@ class UI():
         self.master = master
         self.app = app
         self.frame = frame
-        self.sim = app.sim
-        self.world = self.sim.world
+        self.world = self.app.simulation.world
         self.cells = self.world.cells
 
         self.add_buttons()
@@ -41,10 +40,10 @@ class UI():
         self.tiles = []
         for cell in self.cells:
             self.tiles.append(self.map.create_rectangle(
-                cell.x_min,
-                cell.y_min,
-                cell.x_max,
-                cell.y_max,
+                cell.x*settings.cell_width + settings.map_border,
+                cell.y*settings.cell_height + settings.map_border,
+                (cell.x+1)*settings.cell_width + settings.map_border,
+                (cell.y+1)*settings.cell_height + settings.map_border,
                 fill="",
                 outline=""))
 
@@ -53,22 +52,21 @@ class UI():
             self.map.itemconfigure(self.tiles[x], fill=self.cell_color(self.cells[x]))
 
     def cell_color(self, cell):
-
         if settings.draw_mode == "terrain":
-            if cell.water_depth == 0:
+            if cell.water.volume == 0:
                 col_min = [50, 20, 4]
                 col_max = [255, 255, 255]
-                p = (cell.ground_height - settings.min_ground_height)/(settings.max_ground_height - settings.min_ground_height)
+                p = (cell.land.height - settings.min_ground_height)/(settings.max_ground_height - settings.min_ground_height)
             else:
                 col_min = [153, 204, 255]
                 col_max = [0, 0, 40]
-                p = cell.water_depth/(settings.max_ground_height - settings.min_ground_height)
+                p = cell.water.volume/(settings.max_ground_height - settings.min_ground_height)
                 if p > 1:
                     p = 1
         elif settings.draw_mode == "heat":
             col_min = [178, 34, 34]
             col_max = [255, 250, 205]
-            p = min((cell.temperature-200)/200, 1)
+            p = max(min((cell.land.temperature-200)/200, 1), 0)
         elif settings.draw_mode == "wind":
             col_min = [0, 0, 0]
             col_max = [255, 255, 255]
@@ -79,12 +77,12 @@ class UI():
 
     def draw_terrain(self):
         settings.draw_mode = "terrain"
-        self.color_tiles()
+        self.paint_tiles()
 
     def draw_heat(self):
         settings.draw_mode = "heat"
-        self.color_tiles()
+        self.paint_tiles()
 
     def draw_wind(self):
         settings.draw_mode = "wind"
-        self.color_tiles()
+        self.paint_tiles()

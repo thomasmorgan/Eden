@@ -9,7 +9,10 @@ class EdenApp():
         self.master = master
 
         # create the simulation object
-        self.sim = Simulation()
+        self.simulation = Simulation()
+        for x in range(500):
+            print x
+            self.simulation.step()
 
         # create the app
         master.wm_title("Eden")
@@ -20,8 +23,8 @@ class EdenApp():
         self.ui = UI(self.master, self, self.frame)
 
     def step(self):
-        self.world.step()
-        self.ui.color_tiles()
+        self.simulation.step()
+        self.ui.paint_tiles()
         print "stepped!"
 
 root = Tk()
