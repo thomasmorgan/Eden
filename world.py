@@ -1,5 +1,4 @@
 import random
-from scipy import stats
 import numpy as np
 from tile import Tile
 from sun import Sun
@@ -8,7 +7,12 @@ import settings
 
 class World():
 
+    """ #####################
+    ### CREATION METHODS ####
+    ######################"""
+
     def __init__(self):
+        """ build a world! """
         self.create_tiles()
         self.create_terrain()
         self.create_sun()
@@ -16,20 +20,14 @@ class World():
         self.calculate_wind()
 
     def create_tiles(self):
+        """ create a list of the tile objects that constitute the terrain of the world """
         self.tiles = []
         for y in range(settings.world_tile_height):
             for x in range(settings.world_tile_width):
                 self.tiles.append(Tile(x=x, y=y))
 
-    def create_sun(self):
-        self.sun = Sun()
-
-    def get_coordinate_set(self, x_step=1, y_step=1):
-        xs = [x*x_step for x in range(settings.world_tile_width/x_step)]
-        ys = [y*y_step for y in range(settings.world_tile_height/y_step)]
-        return[xs, ys]
-
     def create_terrain(self):
+        """ assign ground height values to all the tiles """
         # initialize the first four tiles
         x_step = settings.world_tile_width/2
         y_step = settings.world_tile_height/2
@@ -95,89 +93,12 @@ class World():
                                                      [self.random_ground_height()*(1-2*x_influence-2*y_influence)])
         self.normalize_terrain()
 
-    def height_influence(self, distance):
-        influence = settings.smoothness_buffer - distance*settings.smoothness_rate
-        influence = max(min(influence, 5), -5)
-        if influence == 5:
-            influence = 1.0
-        elif influence == -5:
-            influence = 0.0
-        else:
-            influence = np.exp(influence)/(1+np.exp(influence))
-        return influence/4
-
-    def random_ground_height(self):
-        return np.random.beta(settings.beta_a, settings.beta_b)*(settings.max_ground_height - settings.min_ground_height) + settings.min_ground_height
-
-    def normalize_terrain(self):
-        # reset average tile height to be 0 and scale heights within boundaries.
-        heights = [t.ground_height for t in self.tiles]
-        mean_height = sum(heights)/len(heights)
-        for t in self.tiles:
-            t.ground_height = t.ground_height - mean_height
-
-        heights = [t.ground_height for t in self.tiles]
-
-        scale = max([1, min(heights)/settings.min_ground_height, max(heights)/settings.max_ground_height])
-        for t in self.tiles:
-            t.ground_height = t.ground_height/scale
-
-    def distort_terrain(self, type="cone", nsteps=1, tile=None, change=None, scope=None, random_walk=False, step_size=5):
-
-        if random_walk is False:
-            if tile is None:
-                focal_tiles = np.random.choice(self.tiles, size=nsteps, replace=True)
-            else:
-                focal_tiles = [tile]*nsteps
-        else:
-            if tile is None:
-                focal_tiles = [random.choice(self.tiles)]
-            else:
-                focal_tiles = [tile]
-            for i in range(nsteps-1):
-                focal_tiles.append(self.random_step_from(focal_tiles[-1], step_size=step_size))
-
-        if scope is None:
-            focal_ranges = np.random.normal(0.0, 2, nsteps)
-            focal_ranges = [abs(f)+1 for f in focal_ranges]
-        else:
-            focal_ranges = [scope]*nsteps
-
-        if change is None:
-            direction_of_change = [-1]*0 + [1]*9
-            focal_changes = [r*(random.random()*5)*random.choice(direction_of_change) for r in focal_ranges]
-        else:
-            focal_changes = [change]*nsteps
-
-        if (type == "cone"):
-            for t in self.tiles:
-                distances = [t.distance_from(t2) for t2 in focal_tiles]
-                local_change = [c - d*(c/r) for c, d, r in zip(focal_changes, distances, focal_ranges) if d < r]
-                t.height += sum(local_change)
-        elif (type == "circle"):
-            for t in self.tiles:
-                distances = [t.distance_from(t2) for t2 in focal_tiles]
-                local_change = [c for c, d, r in zip(focal_changes, distances, focal_ranges) if d < r]
-                t.height += sum(local_change)
-        elif (type == "reciprocal"):
-            for t in self.tiles:
-                distances = [t.distance_from(t2) for t2 in focal_tiles]
-                local_change = [c/((d/pow(r, 2))+1) for c, d, r in zip(focal_changes, distances, focal_ranges)]
-                t.height += sum(local_change)
-        elif (type == "normal"):
-            for t in self.tiles:
-                distances = [t.distance_from(t2) for t2 in focal_tiles]
-                d2 = [d for d, r in zip(distances, focal_ranges) if d < r]
-                c2 = [c for c, r, d in zip(focal_changes, focal_ranges, distances) if d < r]
-                r2 = [r for r, d in zip(focal_ranges, distances) if d < r]
-                local_change = [(c/stats.norm.pdf(0, loc=0, scale=r/3))*stats.norm.pdf(d, loc=0, scale=r/3) for c, d, r in zip(c2, d2, r2)]
-                t.height += sum(local_change)
-        else:
-            raise Exception("Unknown terrain distort type: {}".format(type))
-
-        self.normalize_terrain()
+    def create_sun(self):
+        """ create the sun object """
+        self.sun = Sun()
 
     def create_oceans(self):
+        """ fill the oceans """
         heights = [t.ground_height for t in self.tiles]
         self.water_level = min(heights)
         water_change = 10.0
@@ -191,49 +112,21 @@ class World():
         for t in self.tiles:
             t.water_depth = max(self.water_level - t.ground_height, 0)
 
-    def water_volume(self):
-        return sum([(self.water_level - t.ground_height) for t in self.tiles if t.ground_height < self.water_level])*pow(settings.tile_size, 2)
+    def calculate_wind(self):
+        """ use temperature differentials to determine the wind speed at each tile """
+        for t in self.tiles:
+            x_diff = ((self.tile_at(t.x+1, t.y).temperature - t.temperature) + (t.temperature - self.tile_at(t.x-1, t.y).temperature))/2
+            y_diff = ((self.tile_at(t.x, t.y-1).temperature - t.temperature) + (t.temperature - self.tile_at(t.x, t.y+1).temperature))/2
 
-    def at_threshold(self):
-        heights = [t.height for t in self.tiles]
-        min_height = min(heights)
-        max_height = max(heights)
-        if (min_height == self.min_tile_height or max_height == self.max_tile_height):
-            return True
-        else:
-            return False
+            t.wind = [x_diff*settings.wind_per_degree_difference, y_diff*settings.wind_per_degree_difference]
+            t.wind_speed = pow(pow(x_diff, 2) + pow(y_diff, 2), 0.5)
 
-    def random_step_from(self, tile=None, step_size=None):
-        old_x = tile.xcor
-        old_y = tile.ycor
-
-        new_x = old_x + random.randint(1, step_size)*random.choice([1, -1])
-        new_y = old_y + random.randint(1, step_size)*random.choice([1, -1])
-
-        if new_x >= self.num_tiles:
-            new_x -= self.num_tiles
-        elif new_x < 0:
-            new_x += self.num_tiles
-        if new_y >= self.num_tiles:
-            new_y -= self.num_tiles
-        elif new_y < 0:
-            new_y += self.num_tiles
-
-        return self.tile_at(new_x, new_y)
-
-    def tile_at(self, x, y):
-        while x >= settings.world_tile_width:
-            x -= settings.world_tile_width
-        while x < 0:
-            x += settings.world_tile_width
-        while y >= settings.world_tile_height:
-            y -= settings.world_tile_height
-        while y < 0:
-            y += settings.world_tile_height
-
-        return self.tiles[x + y*settings.world_tile_width]
+    """ #####################
+    ### EXECUTION METHODS ###
+    ######################"""
 
     def step(self):
+        """ Allow one day to pass """
         self.blow_wind()
         self.radiate_heat_into_space()
         self.absorb_heat_from_sun()
@@ -246,36 +139,12 @@ class World():
         half = settings.world_tile_height*settings.world_tile_width/2
         print "equatorial tile: temp = {}, wind = {}".format(self.tiles[half].temperature - 273, self.tiles[half].wind_speed)
 
-    def radiate_heat_into_space(self):
-        for t in self.tiles:
-            t.thermal_energy = t.thermal_energy - (settings.thermal_energy_radiated_per_day_per_kelvin*pow(t.temperature, 4))*(1-settings.atmosphere_albedo)
-
-    def absorb_heat_from_sun(self):
-        for t in self.tiles:
-            t.thermal_energy = t.thermal_energy + t.solar_energy_per_day
-
-    def absorb_heat_from_core(self):
-        for t in self.tiles:
-            t.thermal_energy = t.thermal_energy + settings.thermal_energy_from_core_per_day_per_tile
-
-    def calculate_temperature(self):
-        for t in self.tiles:
-            t.calculate_temperature()
-
-    def calculate_wind(self):
-        for t in self.tiles:
-            x_diff = ((self.tile_at(t.x+1, t.y).temperature - t.temperature) + (t.temperature - self.tile_at(t.x-1, t.y).temperature))/2
-            y_diff = ((self.tile_at(t.x, t.y-1).temperature - t.temperature) + (t.temperature - self.tile_at(t.x, t.y+1).temperature))/2
-
-            t.wind = [x_diff*settings.wind_per_degree_difference, y_diff*settings.wind_per_degree_difference]
-            t.wind_speed = pow(pow(x_diff, 2) + pow(y_diff, 2), 0.5)
-
     def blow_wind(self):
+        """ use calculated wind speeds to transfer thermal energy between tiles """
         index = list(range(settings.world_tile_width*settings.world_tile_height))
         random.shuffle(index)
         for i in index:
             tile = self.tiles[i]
-        # for tile in self.tiles:
             # how much thermal energy remains with them
             kept_energy = (((300-abs(tile.wind[0]))*(300-abs(tile.wind[1]))) /
                            (300*300)) * tile.thermal_energy
@@ -317,6 +186,87 @@ class World():
 
             tile.thermal_energy = kept_energy + gained_energy_x + gained_energy_y + gained_energy_x_y
 
+    def radiate_heat_into_space(self):
+        """ lose thermal energy into space """
+        for t in self.tiles:
+            t.thermal_energy = t.thermal_energy - (settings.thermal_energy_radiated_per_day_per_kelvin*pow(t.temperature, 4))*(1-settings.atmosphere_albedo)
+
+    def absorb_heat_from_sun(self):
+        """ gain thermal energy from the sun """
+        for t in self.tiles:
+            t.thermal_energy = t.thermal_energy + t.solar_energy_per_day
+
+    def absorb_heat_from_core(self):
+        """ gain thermal energy from within the earth """
+        for t in self.tiles:
+            t.thermal_energy = t.thermal_energy + settings.thermal_energy_from_core_per_day_per_tile
+
+    def calculate_temperature(self):
+        """ calculate temperature given thermal energy """
+        for t in self.tiles:
+            t.calculate_temperature()
+
+    """ #####################
+    #### SUPPORT METHODS ####
+    ######################"""
+
+    def get_coordinate_set(self, x_step=1, y_step=1):
+        """ Returns a list of coordinates for tiles at a given granularity
+        form is [[x1, x2, x3...], [y1, y2, y3...]]
+        e.g, with x_step = y_step = 3, return value is:
+        [[0, 3, 6...], [0, 3, 6...]]
+        """
+        xs = [x*x_step for x in range(settings.world_tile_width/x_step)]
+        ys = [y*y_step for y in range(settings.world_tile_height/y_step)]
+        return[xs, ys]
+
+    def height_influence(self, distance):
+        """ Calculate the influence of one tile on another given the distance between them """
+        influence = settings.smoothness_buffer - distance*settings.smoothness_rate
+        influence = max(min(influence, 5), -5)
+        if influence == 5:
+            influence = 1.0
+        elif influence == -5:
+            influence = 0.0
+        else:
+            influence = np.exp(influence)/(1+np.exp(influence))
+        return influence/4
+
+    def random_ground_height(self):
+        """ generate a random value for ground height """
+        return np.random.beta(settings.beta_a, settings.beta_b)*(settings.max_ground_height - settings.min_ground_height) + settings.min_ground_height
+
+    def normalize_terrain(self):
+        """ adjust tile heights such that the average is 0 and it fits within the specified bounds"""
+        heights = [t.ground_height for t in self.tiles]
+        mean_height = sum(heights)/len(heights)
+        for t in self.tiles:
+            t.ground_height = t.ground_height - mean_height
+
+        heights = [t.ground_height for t in self.tiles]
+
+        scale = max([1, min(heights)/settings.min_ground_height, max(heights)/settings.max_ground_height])
+        for t in self.tiles:
+            t.ground_height = t.ground_height/scale
+
+    def tile_at(self, x, y):
+        """ Get the tile at the specified coordinates
+        the coordinates wrap around """
+        while x >= settings.world_tile_width:
+            x -= settings.world_tile_width
+        while x < 0:
+            x += settings.world_tile_width
+        while y >= settings.world_tile_height:
+            y -= settings.world_tile_height
+        while y < 0:
+            y += settings.world_tile_height
+
+        return self.tiles[x + y*settings.world_tile_width]
+
+    """ #####################
+    ##### PRINT METHODS #####
+    ######################"""
+
     def print_tile_heights(self):
         print "###################"
         print "Tile heights:"
@@ -333,13 +283,6 @@ class World():
         print "min: {}".format(min([tile.water_depth for tile in self.tiles]))
         for r in self.tiles:
             print [int(t.water_depth) for t in r]
-        print "###################"
-
-    def print_tile_distances_from(self, focal_tile=None):
-        print "###################"
-        print "Tile distances:"
-        for i in range(self.num_tiles):
-            print [int(tile.distance_from(focal_tile)) for tile in self.tiles[i*self.num_tiles:((i+1)*self.num_tiles)]]
         print "###################"
 
     def print_tile_coords(self):
