@@ -26,6 +26,8 @@ class World():
 
     def create_sun(self):
         self.sun = Sun()
+        for t in self.tiles:
+            t.solar_energy = (1-settings.atmosphere_albedo)*math.cos(abs(t.y - (settings.world_tile_height-1)/2.0)/((settings.world_tile_height-1)/2.0)*(math.pi/2))
 
     def get_coordinate_set(self, x_step=1, y_step=1):
         xs = [x*x_step for x in range(settings.world_tile_width/x_step)]
