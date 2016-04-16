@@ -4,7 +4,6 @@ import numpy as np
 from tile import Tile
 from sun import Sun
 import settings
-import math
 
 
 class World():
@@ -14,9 +13,7 @@ class World():
         self.create_terrain()
         self.create_sun()
         self.create_oceans()
-        self.calculate_temperature()
         self.calculate_wind()
-        print settings.max_solar_energy_per_tile
 
     def create_tiles(self):
         self.tiles = []
@@ -26,8 +23,6 @@ class World():
 
     def create_sun(self):
         self.sun = Sun()
-        for t in self.tiles:
-            t.solar_energy = (1-settings.atmosphere_albedo)*math.cos(abs(t.y - (settings.world_tile_height-1)/2.0)/((settings.world_tile_height-1)/2.0)*(math.pi/2))
 
     def get_coordinate_set(self, x_step=1, y_step=1):
         xs = [x*x_step for x in range(settings.world_tile_width/x_step)]
@@ -196,23 +191,6 @@ class World():
         for t in self.tiles:
             t.water_depth = max(self.water_level - t.ground_height, 0)
 
-    def calculate_temperature(self):
-        for t in self.tiles:
-            t.solar_energy = math.cos(abs(t.y - (settings.world_tile_height-1)/2.0)/((settings.world_tile_height-1)/2.0)*(math.pi/2))
-            t.temp = t.solar_energy
-
-    def calculate_wind(self):
-        for t in self.tiles:
-            x_diff = (self.tile_at(t.x+1, t.y).temp - t.temp) + (t.temp - self.tile_at(t.x-1, t.y).temp)
-            y_diff = (self.tile_at(t.x, t.y+1).temp - t.temp) + (t.temp - self.tile_at(t.x, t.y-1).temp)
-
-            t.wind = [x_diff, y_diff]
-            t.wind_speed = pow(pow(x_diff, 2) + pow(y_diff, 2), 0.5)
-
-        ys = [t.wind[0] for t in self.tiles]
-        print max(ys)
-        print sum(ys)
-
     def water_volume(self):
         return sum([(self.water_level - t.ground_height) for t in self.tiles if t.ground_height < self.water_level])*pow(settings.tile_size, 2)
 
@@ -256,28 +234,88 @@ class World():
         return self.tiles[x + y*settings.world_tile_width]
 
     def step(self):
+        self.blow_wind()
+        self.radiate_heat_into_space()
+        self.absorb_heat_from_sun()
+        self.absorb_heat_from_core()
+        self.calculate_temperature()
+        self.calculate_wind()
+
+        print "****"
+        print "polar tile: temp = {}, wind = {}".format(self.tiles[0].temperature - 273, self.tiles[0].wind_speed)
+        half = settings.world_tile_height*settings.world_tile_width/2
+        print "equatorial tile: temp = {}, wind = {}".format(self.tiles[half].temperature - 273, self.tiles[half].wind_speed)
+
+    def radiate_heat_into_space(self):
+        for t in self.tiles:
+            t.thermal_energy = t.thermal_energy - (settings.thermal_energy_radiated_per_day_per_kelvin*pow(t.temperature, 4))*(1-settings.atmosphere_albedo)
+
+    def absorb_heat_from_sun(self):
+        for t in self.tiles:
+            t.thermal_energy = t.thermal_energy + t.solar_energy_per_day
+
+    def absorb_heat_from_core(self):
+        for t in self.tiles:
+            t.thermal_energy = t.thermal_energy + settings.thermal_energy_from_core_per_day_per_tile
+
+    def calculate_temperature(self):
+        for t in self.tiles:
+            t.calculate_temperature()
+
+    def calculate_wind(self):
+        for t in self.tiles:
+            x_diff = ((self.tile_at(t.x+1, t.y).temperature - t.temperature) + (t.temperature - self.tile_at(t.x-1, t.y).temperature))/2
+            y_diff = ((self.tile_at(t.x, t.y-1).temperature - t.temperature) + (t.temperature - self.tile_at(t.x, t.y+1).temperature))/2
+
+            t.wind = [x_diff*settings.wind_per_degree_difference, y_diff*settings.wind_per_degree_difference]
+            t.wind_speed = pow(pow(x_diff, 2) + pow(y_diff, 2), 0.5)
+
+    def blow_wind(self):
         index = list(range(settings.world_tile_width*settings.world_tile_height))
         random.shuffle(index)
         for i in index:
             tile = self.tiles[i]
+        # for tile in self.tiles:
+            # how much thermal energy remains with them
+            kept_energy = (((300-abs(tile.wind[0]))*(300-abs(tile.wind[1]))) /
+                           (300*300)) * tile.thermal_energy
+
+            # how much do they gain along the x axis
             if tile.wind[0] == 0:
                 wind_from_x = tile
             elif tile.wind[0] > 1:
                 wind_from_x = self.tile_at(tile.x-1, tile.y)
             else:
                 wind_from_x = self.tile_at(tile.x+1, tile.y)
+            gained_energy_x = ((abs(tile.wind[0])*(300-abs(tile.wind[1]))) /
+                               (300*300)) * wind_from_x.thermal_energy
 
+            #how much do they gain along the y axis
             if tile.wind[1] == 0:
                 wind_from_y = tile
             elif tile.wind[1] > 1:
                 wind_from_y = self.tile_at(tile.x, tile.y-1)
             else:
                 wind_from_y = self.tile_at(tile.x, tile.y+1)
+            gained_energy_y = ((abs(tile.wind[1])*(300-abs(tile.wind[0]))) /
+                               (300*300)) * wind_from_y.thermal_energy
 
-            thermal_inertia = 0.01
-            tile.temp = (wind_from_x.temp*abs(tile.wind[0]) + wind_from_y.temp*abs(tile.wind[1]) + tile.temp*thermal_inertia)/(thermal_inertia + abs(tile.wind[0]) + abs(tile.wind[1]))
+            # how much do they gain along the diagonal
+            if tile.wind[0] == 0 or tile.wind[1] == 0:
+                wind_from_x_y = tile
+            else:
+                if tile.wind[0] > 0 and tile.wind[1] > 0:
+                    wind_from_x_y = self.tile_at(tile.x-1, tile.y+1)
+                elif tile.wind[0] > 0 and tile.wind[1] < 0:
+                    wind_from_x_y = self.tile_at(tile.x-1, tile.y-1)
+                elif tile.wind[0] < 0 and tile.wind[1] > 0:
+                    wind_from_x_y = self.tile_at(tile.x+1, tile.y+1)
+                elif tile.wind[0] < 0 and tile.wind[1] < 0:
+                    wind_from_x_y = self.tile_at(tile.x+1, tile.y-1)
+            gained_energy_x_y = ((abs(tile.wind[1])*abs(tile.wind[0])) /
+                                 (300*300)) * wind_from_x_y.thermal_energy
 
-        self.calculate_wind()
+            tile.thermal_energy = kept_energy + gained_energy_x + gained_energy_y + gained_energy_x_y
 
     def print_tile_heights(self):
         print "###################"
