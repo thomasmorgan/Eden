@@ -2,6 +2,7 @@ import random
 from scipy import stats
 import numpy as np
 from tile import Tile
+from sun import Sun
 import settings
 import math
 
@@ -12,7 +13,7 @@ class World():
         self.create_tiles()
         self.create_terrain()
         self.create_sun()
-        #self.create_oceans()
+        self.create_oceans()
         self.calculate_temperature()
         self.calculate_wind()
 
@@ -210,7 +211,7 @@ class World():
         print sum(ys)
 
     def water_volume(self):
-        return sum([(self.water_level - t.ground_height) for t in self.tiles if t.ground_height < self.water_level])
+        return sum([(self.water_level - t.ground_height) for t in self.tiles if t.ground_height < self.water_level])*pow(settings.tile_size, 2)
 
     def at_threshold(self):
         heights = [t.height for t in self.tiles]

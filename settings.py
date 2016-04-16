@@ -3,14 +3,16 @@
 ######################## """
 
 """ world size """
-# how wide is the world
+# how big is each tile? (in km)
+tile_size = 300
+# how wide is the world (in tiles)
 # this absolutely needs to be a power of 2!
-world_tile_width = pow(2, 8)
-# how tall is the world
+world_tile_width = pow(2, 7)
+# how tall is the world (in tiles)
 # this absolutely needs to be a power of 2!
-world_tile_height = pow(2, 8)
-# total water volume
-total_water_volume = 4*world_tile_width*world_tile_height
+world_tile_height = pow(2, 7)
+# total water volume (km^3)
+total_water_volume = 8*world_tile_width*world_tile_height*tile_size*tile_size
 
 """ world shape """
 # how smooth is the world
@@ -42,6 +44,8 @@ beta_b = 2
 """ sun properties """
 # how hot is the sun
 sun_strength = 1.0
+# how far away is the sun
+sun_distance = 1.0
 
 
 """ ########################
