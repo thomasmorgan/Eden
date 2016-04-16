@@ -13,18 +13,20 @@ Stefan_Boltzman_constant = 5.6703*pow(10, -8)
 ######################## """
 
 """ world size """
-# a tile size of 300 and tile_width/height of 2^7 approximates earth
-# how big is each tile? (in km)
-tile_size = 300
+# circumference of world (km)
+# 40000 = earth
+world_circumference = 40000
 # how wide is the world (in tiles)
 # this absolutely needs to be a power of 2!
 world_tile_width = pow(2, 7)
 # how tall is the world (in tiles)
 # this absolutely needs to be a power of 2!
 world_tile_height = pow(2, 7)
+# how big is each tile? (in km)
+tile_size = world_circumference/world_tile_width
 # total water volume (km^3)
+# 1386000000 = earth
 total_water_volume = 1386000000
-#8*world_tile_width*world_tile_height*tile_size*tile_size
 
 """ world shape """
 # how smooth is the world
