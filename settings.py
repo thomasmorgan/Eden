@@ -1,8 +1,10 @@
+import math
 """ ########################
 #####  WORLD SETTINGS  #####
 ######################## """
 
 """ world size """
+# a tile size of 300 and tile_width/height of 2^7 approximates earth
 # how big is each tile? (in km)
 tile_size = 300
 # how wide is the world (in tiles)
@@ -12,7 +14,8 @@ world_tile_width = pow(2, 7)
 # this absolutely needs to be a power of 2!
 world_tile_height = pow(2, 7)
 # total water volume (km^3)
-total_water_volume = 8*world_tile_width*world_tile_height*tile_size*tile_size
+total_water_volume = 1386000000
+#8*world_tile_width*world_tile_height*tile_size*tile_size
 
 """ world shape """
 # how smooth is the world
@@ -25,13 +28,13 @@ smoothness_buffer = 10
 # high values will produce steep cliffs
 # it is unitless and ranges from 0 to +inf
 # for a smooth world set the rate to 0
-smoothness_rate = 0.4
-# tallest possible ground height
+smoothness_rate = 1
+# tallest possible ground height (km)
 # must be > 0
-max_ground_height = 50
-# lowest possible ground height
+max_ground_height = 10
+# lowest possible ground height (km)
 # must be < 0
-min_ground_height = -50
+min_ground_height = -10
 # how are random ground heights generated? beta_a and beta_b are the two parameters of a beta distribution
 # a=b=1 -> uniform
 # a=b > 1 -> increasingly normal
@@ -39,13 +42,31 @@ min_ground_height = -50
 # a > b -> negative skew
 # b>a -> positive skew
 beta_a = 1.2
-beta_b = 2
+beta_b = 4
+
+""" other world settings """
+# initial temp (K) (273 = 0C)
+initial_temp = 283
+
+""" atmosphere settings """
+# what proportion of the suns energy bounces off the atmosphere?
+atmosphere_albedo = 0.3
+# how thick is the atmosphere (km)
+atmophere_thickness = 20
+# density of air (kg per km^3)
+density_of_atmosphere = 1.225*pow(10, 9)
+# atmosphere mass per tile (kg)
+atmosphere_mass_per_tile = pow(tile_size, 2)*atmophere_thickness*density_of_atmosphere
+
 
 """ sun properties """
-# how hot is the sun
-sun_strength = 1.0
-# how far away is the sun
-sun_distance = 1.0
+# how much energy does the sun produce per day (kJ/day)
+sun_total_daily_energy = 3.3*pow(10, 28)
+# how far away is the sun (in km, 150000000 is true value)
+sun_distance = 150000000*1
+# how much energy could a tile possible receive (kJ/day)
+# do not change, this is entirely determined by the above
+max_solar_energy_per_tile = pow(tile_size, 2)/(4*math.pi*pow(sun_distance, 2))*sun_total_daily_energy
 
 
 """ ########################

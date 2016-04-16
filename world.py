@@ -16,6 +16,7 @@ class World():
         self.create_oceans()
         self.calculate_temperature()
         self.calculate_wind()
+        print settings.max_solar_energy_per_tile
 
     def create_tiles(self):
         self.tiles = []
