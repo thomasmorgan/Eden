@@ -92,11 +92,11 @@ class UI():
         elif settings.draw_mode == "heat":
             col_min = [178, 34, 34]
             col_max = [255, 250, 205]
-            p = tile.temp
+            p = min((tile.temperature-200)/200, 1)
         elif settings.draw_mode == "wind":
             col_min = [0, 0, 0]
             col_max = [255, 255, 255]
-            p = min(tile.wind_speed, 1)
+            p = min(tile.wind_speed, 10)/10
         q = 1-p
         col = [int(q*col_min[0] + p*col_max[0]), int(q*col_min[1] + p*col_max[1]), int(q*col_min[2] + p*col_max[2])]
         return '#%02X%02X%02X' % (col[0], col[1], col[2])
