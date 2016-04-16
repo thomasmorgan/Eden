@@ -4,18 +4,19 @@ import settings
 
 class Tile():
 
-    base_temp = -20.0
-    temp_from_sun = 60.0
-    rectangle = None
-
-    def __init__(self, x=None, y=None):
+    def __init__(self, x, y):
         self.x = x
         self.y = y
         self.ground_height = None
+        self.water_depth = 0.0
+        self.solar_energy = None
+        self.temp = None
+        self.wind = None
+        self.wind_speed = None
 
-        self.x_min = x*settings.tile_width + settings.map_border,
-        self.y_min = y*settings.tile_height + settings.map_border,
-        self.x_max = (x+1)*settings.tile_width + settings.map_border,
+        self.x_min = x*settings.tile_width + settings.map_border
+        self.y_min = y*settings.tile_height + settings.map_border
+        self.x_max = (x+1)*settings.tile_width + settings.map_border
         self.y_max = (y+1)*settings.tile_height + settings.map_border
 
     def gradient(self):

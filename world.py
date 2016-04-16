@@ -2,8 +2,8 @@ import random
 from scipy import stats
 import numpy as np
 from tile import Tile
-from threading import Thread
 import settings
+import math
 
 
 class World():
@@ -11,13 +11,19 @@ class World():
     def __init__(self):
         self.create_tiles()
         self.create_terrain()
-        self.create_oceans()
+        self.create_sun()
+        #self.create_oceans()
+        self.calculate_temperature()
+        self.calculate_wind()
 
     def create_tiles(self):
         self.tiles = []
-        for x in range(settings.world_tile_width):
-            for y in range(settings.world_tile_height):
+        for y in range(settings.world_tile_height):
+            for x in range(settings.world_tile_width):
                 self.tiles.append(Tile(x=x, y=y))
+
+    def create_sun(self):
+        self.sun = Sun()
 
     def get_coordinate_set(self, x_step=1, y_step=1):
         xs = [x*x_step for x in range(settings.world_tile_width/x_step)]
@@ -68,14 +74,6 @@ class World():
                             tile.ground_height = sum([n.ground_height*influence for n in neighbors] +
                                                      [self.random_ground_height()*(1-4*influence)])
 
-                            
-                            # neighbor_ground_heights = [n.ground_height for n in neighbors]
-                            # mean_neighbor_ground_height = sum(neighbor_ground_heights)/4
-                            # if mean_weight == 1:
-                            #     tile.ground_height = mean_neighbor_ground_height
-                            # else:
-                            #     tile.ground_height = mean_weight*mean_neighbor_ground_height + (1-mean_weight)*self.random_ground_height()
-
             # get next set of tiles
             coords = self.get_coordinate_set(x_step=x_step, y_step=y_step)
             # calculate distance and weighting:
@@ -96,6 +94,7 @@ class World():
                             tile.ground_height = sum([n.ground_height*x_influence for n in x_neighbors] +
                                                      [n.ground_height*y_influence for n in y_neighbors] +
                                                      [self.random_ground_height()*(1-2*x_influence-2*y_influence)])
+        self.normalize_terrain()
 
     def height_influence(self, distance):
         influence = settings.smoothness_buffer - distance*settings.smoothness_rate
@@ -107,7 +106,6 @@ class World():
         else:
             influence = np.exp(influence)/(1+np.exp(influence))
         return influence/4
-
 
     def random_ground_height(self):
         return np.random.beta(settings.beta_a, settings.beta_b)*(settings.max_ground_height - settings.min_ground_height) + settings.min_ground_height
@@ -194,6 +192,23 @@ class World():
         for t in self.tiles:
             t.water_depth = max(self.water_level - t.ground_height, 0)
 
+    def calculate_temperature(self):
+        for t in self.tiles:
+            t.solar_energy = math.cos(abs(t.y - (settings.world_tile_height-1)/2.0)/((settings.world_tile_height-1)/2.0)*(math.pi/2))
+            t.temp = t.solar_energy
+
+    def calculate_wind(self):
+        for t in self.tiles:
+            x_diff = (self.tile_at(t.x+1, t.y).temp - t.temp) + (t.temp - self.tile_at(t.x-1, t.y).temp)
+            y_diff = (self.tile_at(t.x, t.y+1).temp - t.temp) + (t.temp - self.tile_at(t.x, t.y-1).temp)
+
+            t.wind = [x_diff, y_diff]
+            t.wind_speed = pow(pow(x_diff, 2) + pow(y_diff, 2), 0.5)
+
+        ys = [t.wind[0] for t in self.tiles]
+        print max(ys)
+        print sum(ys)
+
     def water_volume(self):
         return sum([(self.water_level - t.ground_height) for t in self.tiles if t.ground_height < self.water_level])
 
@@ -235,6 +250,30 @@ class World():
             y += settings.world_tile_height
 
         return self.tiles[x + y*settings.world_tile_width]
+
+    def step(self):
+        index = list(range(settings.world_tile_width*settings.world_tile_height))
+        random.shuffle(index)
+        for i in index:
+            tile = self.tiles[i]
+            if tile.wind[0] == 0:
+                wind_from_x = tile
+            elif tile.wind[0] > 1:
+                wind_from_x = self.tile_at(tile.x-1, tile.y)
+            else:
+                wind_from_x = self.tile_at(tile.x+1, tile.y)
+
+            if tile.wind[1] == 0:
+                wind_from_y = tile
+            elif tile.wind[1] > 1:
+                wind_from_y = self.tile_at(tile.x, tile.y-1)
+            else:
+                wind_from_y = self.tile_at(tile.x, tile.y+1)
+
+            thermal_inertia = 0.01
+            tile.temp = (wind_from_x.temp*abs(tile.wind[0]) + wind_from_y.temp*abs(tile.wind[1]) + tile.temp*thermal_inertia)/(thermal_inertia + abs(tile.wind[0]) + abs(tile.wind[1]))
+
+        self.calculate_wind()
 
     def print_tile_heights(self):
         print "###################"

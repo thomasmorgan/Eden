@@ -49,9 +49,12 @@ class EdenApp():
         self.draw_tiles()
 
     def step(self):
-        self.map.distort_terrain(nsteps=10, type="reciprocal", random_walk=True, step_size=5, scope=0.5, change=15)
-        self.map.create_oceans()
-        self.draw_tiles()
+        self.world.step()
+        self.ui.color_tiles()
+        print "stepped!"
+        # self.map.distort_terrain(nsteps=10, type="reciprocal", random_walk=True, step_size=5, scope=0.5, change=15)
+        # self.map.create_oceans()
+        # self.draw_tiles()
 
     def reset_world(self):
         self.map.create_terrain(smoothness=self.smoothness)
