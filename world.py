@@ -15,9 +15,8 @@ class World():
         """ build a world! """
         self.create_cells()
         self.create_terrain()
-        self.create_sun()
-        self.create_oceans()
-        self.calculate_wind()
+        #self.create_oceans()
+        #self.calculate_wind()
 
     def create_cells(self):
         """ create a list of the tile objects that constitute the terrain of the world """
@@ -92,10 +91,6 @@ class World():
                                                      [n.ground_height*y_influence for n in y_neighbors] +
                                                      [self.random_ground_height()*(1-2*x_influence-2*y_influence)])
         self.normalize_terrain()
-
-    def create_sun(self):
-        """ create the sun object """
-        self.sun = Sun()
 
     def create_oceans(self):
         """ fill the oceans """

@@ -1,5 +1,5 @@
 from Tkinter import *
-from world import World
+from simulation import Simulation
 from ui import UI
 
 
@@ -8,8 +8,8 @@ class EdenApp():
     def __init__(self, master):
         self.master = master
 
-        # create the world object
-        self.world = World()
+        # create the simulation object
+        self.sim = Simulation()
 
         # create the app
         master.wm_title("Eden")
@@ -17,7 +17,7 @@ class EdenApp():
         self.frame.pack()
 
         # create the ui
-        self.ui = UI(self.master, self, self.frame, self.world)
+        self.ui = UI(self.master, self, self.frame)
 
     def step(self):
         self.world.step()

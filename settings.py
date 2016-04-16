@@ -28,7 +28,7 @@ world_cell_height = pow(2, 7)
 cell_size = world_circumference/world_cell_width
 # total water volume (km^3)
 # 1386000000 = earth
-total_water_volume = 1386000000
+total_water_volume = 0*1386000000
 
 """ world shape """
 # how smooth is the world
@@ -89,9 +89,6 @@ wind_per_degree_difference = 1.0
 sun_total_daily_energy = 3.3*pow(10, 28)
 # how far away is the sun (in km, 150000000 is true value)
 sun_distance = 150000000*1
-# how much energy could a cell possible receive (kJ/day)
-# do not change, this is entirely determined by the above
-max_solar_energy_per_cell = pow(cell_size, 2)/(4*math.pi*pow(sun_distance, 2))*sun_total_daily_energy
 
 
 """ ########################

@@ -9,7 +9,7 @@ class Cell():
         self.y = y
         self.ground_height = None
         self.water_depth = 0.0
-        self.solar_energy_per_day = (1-settings.atmosphere_albedo)*math.cos(abs(self.y - (settings.world_cell_height-1)/2.0)/((settings.world_cell_height-1)/2.0)*(math.pi/2))*settings.max_solar_energy_per_cell
+        self.angular_size_from_sun = math.cos(abs(self.y - (settings.world_cell_height-1)/2.0)/((settings.world_cell_height-1)/2.0)*(math.pi/2))
         self.thermal_energy = settings.initial_temperature*settings.atmosphere_heat_constant*settings.atmosphere_mass_per_cell
         self.temperature = None
         self.calculate_temperature()
