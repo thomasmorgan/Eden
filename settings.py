@@ -18,14 +18,14 @@ Stefan_Boltzman_constant = 5.6703*pow(10, -8)
 world_circumference = 40000
 # radius of world
 world_radius = world_circumference/(1*math.pi)
-# how wide is the world (in tiles)
+# how wide is the world (in cells)
 # this absolutely needs to be a power of 2!
-world_tile_width = pow(2, 7)
-# how tall is the world (in tiles)
+world_cell_width = pow(2, 7)
+# how tall is the world (in cells)
 # this absolutely needs to be a power of 2!
-world_tile_height = pow(2, 7)
-# how big is each tile? (in km)
-tile_size = world_circumference/world_tile_width
+world_cell_height = pow(2, 7)
+# how big is each cell? (in km)
+cell_size = world_circumference/world_cell_width
 # total water volume (km^3)
 # 1386000000 = earth
 total_water_volume = 1386000000
@@ -35,7 +35,7 @@ total_water_volume = 1386000000
 # the buffer sets a value at which different areas will tend to have similar heights
 # a high value will produce things like plateaus
 # for a chaotic world set the buffer to -5
-# the units are distances in tiles
+# the units are distances in cells
 smoothness_buffer = 10
 # the rate affects the increase in independce of different areas as their distance increases
 # though change might not be obvious at first if the buffer is high
@@ -62,10 +62,10 @@ beta_b = 4
 initial_temperature = 283
 # radiation rate (1 = black body, 0 = none)
 thermal_radiation_rate = 0.0005
-# thermal energy lost per day (kJ per tile per day per kelvin)
-thermal_energy_radiated_per_day_per_kelvin = thermal_radiation_rate*(Stefan_Boltzman_constant*pow(tile_size*1000, 2)*60*60*24)
-# rate of core energy production (kJ per tile per day)
-thermal_energy_from_core_per_day_per_tile = 4.1*pow(10, 15)/(world_tile_height*world_tile_width)
+# thermal energy lost per day (kJ per cell per day per kelvin)
+thermal_energy_radiated_per_day_per_kelvin = thermal_radiation_rate*(Stefan_Boltzman_constant*pow(cell_size*1000, 2)*60*60*24)
+# rate of core energy production (kJ per cell per day)
+thermal_energy_from_core_per_day_per_cell = 4.1*pow(10, 15)/(world_cell_height*world_cell_width)
 
 """ atmosphere settings """
 # what proportion of the suns energy bounces off the atmosphere?
@@ -74,8 +74,8 @@ atmosphere_albedo = 0.3
 atmophere_thickness = 20
 # density of air (kg per km^3)
 density_of_atmosphere = 1.225*pow(10, 9)
-# atmosphere mass per tile (kg)
-atmosphere_mass_per_tile = pow(tile_size, 2)*atmophere_thickness*density_of_atmosphere
+# atmosphere mass per cell (kg)
+atmosphere_mass_per_cell = pow(cell_size, 2)*atmophere_thickness*density_of_atmosphere
 # atmosphere thermal inertia (kJ per kg per K)
 atmosphere_heat_constant = 1
 
@@ -89,9 +89,9 @@ wind_per_degree_difference = 1.0
 sun_total_daily_energy = 3.3*pow(10, 28)
 # how far away is the sun (in km, 150000000 is true value)
 sun_distance = 150000000*1
-# how much energy could a tile possible receive (kJ/day)
+# how much energy could a cell possible receive (kJ/day)
 # do not change, this is entirely determined by the above
-max_solar_energy_per_tile = pow(tile_size, 2)/(4*math.pi*pow(sun_distance, 2))*sun_total_daily_energy
+max_solar_energy_per_cell = pow(cell_size, 2)/(4*math.pi*pow(sun_distance, 2))*sun_total_daily_energy
 
 
 """ ########################
@@ -104,9 +104,9 @@ map_width = 750
 map_height = 750
 # width of border around map in px
 map_border = 0
-# size of each tile
-tile_height = map_height/float(world_tile_height)
-tile_width = map_width/float(world_tile_width)
+# size of each cell
+cell_height = map_height/float(world_cell_height)
+cell_width = map_width/float(world_cell_width)
 # boolean, draw water?
 draw_water = True
 # what mode are we drawing
@@ -117,17 +117,3 @@ draw_coast = True
 coast_width = 2.0
 # color of border around coastlines
 coast_color = "black"
-
-
-""" ########################
-######  OLD SETTINGS  ######
-######################## """
-
-
-degrees_per_altitude = 1
-# draw_gradient = False
-# draw_temperature = False
-
-# how many tiles are there in the World
-# this is old!
-num_tiles = pow(2, 7)

@@ -53,7 +53,7 @@ class UI():
     def create_tiles(self):
         self.map.delete("all")
         self.icons = []
-        for t in self.world.tiles:
+        for t in self.world.cells:
             self.icons.append(self.map.create_rectangle(
                 t.x_min,
                 t.y_min,
@@ -63,8 +63,8 @@ class UI():
                 outline=""))
 
     def color_tiles(self):
-        for x in range(settings.world_tile_width*settings.world_tile_height):
-            self.map.itemconfigure(self.icons[x], fill=self.tile_color(self.world.tiles[x]))
+        for x in range(settings.world_cell_width*settings.world_cell_height):
+            self.map.itemconfigure(self.icons[x], fill=self.cell_color(self.world.cells[x]))
         # for tile in self.world.tiles:
         #     if tile.water_depth == 0.0:
         #         if self.world.tile_at(x=tile.x, y=tile.y-1).water_depth > 0.0:
@@ -76,27 +76,27 @@ class UI():
         #         if self.world.tile_at(x=tile.x-1, y=tile.y).water_depth > 0.0:
         #             self.map.create_rectangle(tile.x_min+settings.coast_width, tile.y_min, tile.x_min, tile.y_max, fill=settings.coast_color, outline="")
 
-    def tile_color(self, tile):
+    def cell_color(self, cell):
 
         if settings.draw_mode == "terrain":
-            if tile.water_depth == 0:
+            if cell.water_depth == 0:
                 col_min = [50, 20, 4]
                 col_max = [255, 255, 255]
-                p = (tile.ground_height - settings.min_ground_height)/(settings.max_ground_height - settings.min_ground_height)
+                p = (cell.ground_height - settings.min_ground_height)/(settings.max_ground_height - settings.min_ground_height)
             else:
                 col_min = [153, 204, 255]
                 col_max = [0, 0, 40]
-                p = tile.water_depth/(settings.max_ground_height - settings.min_ground_height)
+                p = cell.water_depth/(settings.max_ground_height - settings.min_ground_height)
                 if p > 1:
                     p = 1
         elif settings.draw_mode == "heat":
             col_min = [178, 34, 34]
             col_max = [255, 250, 205]
-            p = min((tile.temperature-200)/200, 1)
+            p = min((cell.temperature-200)/200, 1)
         elif settings.draw_mode == "wind":
             col_min = [0, 0, 0]
             col_max = [255, 255, 255]
-            p = min(tile.wind_speed, 10)/10
+            p = min(cell.wind_speed, 10)/10
         q = 1-p
         col = [int(q*col_min[0] + p*col_max[0]), int(q*col_min[1] + p*col_max[1]), int(q*col_min[2] + p*col_max[2])]
         return '#%02X%02X%02X' % (col[0], col[1], col[2])
