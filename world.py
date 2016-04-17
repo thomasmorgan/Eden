@@ -2,6 +2,7 @@ import random
 import numpy as np
 from cell import Cell
 import settings
+import math
 
 
 class World():
@@ -120,15 +121,17 @@ class World():
 
     def radiate_energy(self):
         """ lose thermal energy (kJ) into space """
+        time = 60*60*24
+        area = pow(settings.cell_size, 2)
         for c in self.cells:
-            time = 60*60*40
-            area = pow(settings.cell_size, 2)
             c.land.thermal_energy -= settings.stefan_boltzmann_constant*pow(c.land.temperature, 4)*time*area/1000
 
     def absorb_energy_from_sun(self, sun):
         """ gain thermal energy (kJ) from the sun """
+        time = 60*60*24
+        max_power = pow(settings.cell_size, 2)/(4*math.pi*pow(sun.distance, 2))*sun.power
         for c in self.cells:
-            c.land.thermal_energy += sun.max_solar_energy_per_cell*c.apparent_size_from_sun
+            c.land.thermal_energy += max_power*c.apparent_size_from_sun*time
 
     def absorb_energy_from_core(self):
         """ gain thermal energy (kJ) from within the earth """

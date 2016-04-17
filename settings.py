@@ -13,12 +13,12 @@ stefan_boltzmann_constant = 5.6703*pow(10, -8)
 
 """ earth's parameters """
 earths_circumference = 40.075*pow(10, 6)  # (m)
-earths_water_volume = 1.386*pow(10, 18)  # (m^3) see: http://water.usgs.gov/edu/gallery/global-water-volume.html
-earths_energy_production = 47*pow(10, 12)  # (W) see: https://en.wikipedia.org/wiki/Earth%27s_internal_heat_budget
+earths_water_volume = 1.386*pow(10, 18)  # (m^3) http://water.usgs.gov/edu/gallery/global-water-volume.html
+earths_energy_production = 47*pow(10, 12)  # (W) https://en.wikipedia.org/wiki/Earth%27s_internal_heat_budget
 
 """ sun's parameters """
-suns_total_daily_energy = 3.3*pow(10, 28)
-earth_sun_distance = 150000000
+suns_power = 3.846*pow(10, 26)  # (W) https://en.wikipedia.org/wiki/Sun#Structure
+earth_sun_distance = 149.6*pow(10, 9)  # (m) http://www.space.com/17081-how-far-is-earth-from-the-sun.html
 
 
 """ ########################
@@ -89,8 +89,8 @@ thermal_energy_from_core_per_day_per_cell = earths_energy_production*(60*60*24)/
 
 
 """ sun properties """
-# how much energy does the sun produce per day (kJ/day)
-sun_total_daily_energy = suns_total_daily_energy
+# power of the sun
+sun_power = suns_power
 # how far away is the sun (in km, 150000000 is true value)
 sun_distance = earth_sun_distance*1
 
