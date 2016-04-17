@@ -20,10 +20,10 @@ world_circumference = 40000
 world_radius = world_circumference/(1*math.pi)
 # how wide is the world (in cells)
 # this absolutely needs to be a power of 2!
-world_cell_width = pow(2, 7)
+world_cell_width = pow(2, 6)
 # how tall is the world (in cells)
 # this absolutely needs to be a power of 2!
-world_cell_height = pow(2, 7)
+world_cell_height = pow(2, 6)
 # how big is each cell? (in km)
 cell_size = world_circumference/world_cell_width
 # total water volume (km^3)
@@ -65,6 +65,8 @@ land_density = 5515*pow(10, 9)
 land_depth = 0.005
 # how much energy is needed to heat it (kJ per kg per K)
 land_specific_heat = 1.0
+# thermal conductivity of land (Watts per m per K)
+land_thermal_conductivity = 1.5
 
 """ world energy budgets """
 # initial temp (K) (273 = 0C)
