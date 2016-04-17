@@ -5,12 +5,18 @@ from ui import UI
 
 class EdenApp():
 
+    """ The EdenApp class is the overall app.
+    When it runs it creates two objects:
+    The simulation, that runs the actual simulation.
+    The ui, that presents visuals of the simulation on the screen.
+    """
+
     def __init__(self, master):
         self.master = master
 
         # create the simulation object
         self.simulation = Simulation()
-        for x in range(500):
+        for x in range(5000):
             print x
             self.simulation.step()
 

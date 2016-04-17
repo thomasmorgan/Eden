@@ -6,16 +6,18 @@ import settings
 
 class World():
 
+    """ The world class is part of the simulation.
+    It is composed of a number of cells that are arranged into a grid.
+    """
+
     """ #####################
     ### CREATION METHODS ####
-    ######################"""
+    ##################### """
 
     def __init__(self):
         """ build a world! """
         self.create_cells()
         self.create_terrain()
-        #self.create_oceans()
-        #self.calculate_wind()
 
     def create_cells(self):
         """ create a list of the tile objects that constitute the terrain of the world """
@@ -112,35 +114,9 @@ class World():
         for t in self.cells:
             t.water_depth = max(self.water_level - t.land.height, 0)
 
-    def calculate_wind(self):
-        """ use temperature differentials to determine the wind speed at each cell """
-        for t in self.cells:
-            x_diff = ((self.cell_at(t.x+1, t.y).temperature - t.temperature) + (t.temperature - self.cell_at(t.x-1, t.y).temperature))/2
-            y_diff = ((self.cell_at(t.x, t.y-1).temperature - t.temperature) + (t.temperature - self.cell_at(t.x, t.y+1).temperature))/2
-
-            t.wind = [x_diff*settings.wind_per_degree_difference, y_diff*settings.wind_per_degree_difference]
-            t.wind_speed = pow(pow(x_diff, 2) + pow(y_diff, 2), 0.5)
-
     """ #####################
     ### EXECUTION METHODS ###
     ######################"""
-
-    def step(self):
-        """ Allow one day to pass """
-        self.blow_wind()
-        self.radiate_heat_into_space()
-        self.absorb_heat_from_sun()
-        self.absorb_heat_from_core()
-        self.calculate_temperature()
-        self.calculate_wind()
-
-        print "****"
-        print "polar cell: temp = {}, wind = {}".format(self.cells[0].temperature - 273, self.cells[0].wind_speed)
-        half = settings.world_cell_height*settings.world_cell_width/2
-        print "equatorial cell: temp = {}, wind = {}".format(self.cells[half].temperature - 273, self.cells[half].wind_speed)
-
-    def blow_wind(self):
-            pass
 
     def radiate_energy(self):
         """ lose thermal energy (kJ) into space """

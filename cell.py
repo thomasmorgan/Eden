@@ -4,24 +4,25 @@ import math
 
 class Cell():
 
+    """ The cell class is a repeated unit that collectively make a world.
+    Cells have land and water and can be though of as a single column on
+    the world's surface.
+    """
+
     def __init__(self, x, y):
         self.x = x
         self.y = y
         self.apparent_size_from_sun = math.cos(abs(self.y - (settings.world_cell_height-1)/2.0)/((settings.world_cell_height-1)/2.0)*(math.pi/2))
-
         self.land = Land()
         self.water = Water()
 
-        # self.calculate_temperature()
-        # self.wind = None
-        # self.wind_speed = None
-
     def calculate_temperature(self):
-        # self.temperature = self.thermal_energy/(settings.atmosphere_heat_constant*settings.atmosphere_mass_per_cell)
         self.land.calculate_temperature()
 
 
 class Land():
+
+    """ The terrain of a cell """
 
     def __init__(self):
         self.mass = pow(settings.cell_size, 2)*settings.land_depth*settings.land_density
@@ -34,6 +35,8 @@ class Land():
 
 
 class Water():
+
+    """ The water of a cell """
 
     def __init__(self):
         self.volume = 0.0

@@ -4,7 +4,12 @@ import settings
 
 class UI():
 
+    """ The UI class manages the buttons, map and tiles.
+    The latter two are visual depictions of the world and cells respectively
+    """
+
     def __init__(self, master, app, frame):
+        """ create the window """
         self.master = master
         self.app = app
         self.frame = frame
@@ -13,29 +18,29 @@ class UI():
 
         self.add_buttons()
         self.add_map()
-
         self.create_tiles()
         self.paint_tiles()
 
     def add_buttons(self):
+        """ add buttons to the frame """
         ground_button = Button(self.frame, text="TERRA", fg="red", command=self.draw_terrain)
         ground_button.pack(side=LEFT)
         heat_button = Button(self.frame, text="HEAT", fg="red", command=self.draw_heat)
         heat_button.pack(side=LEFT)
-        wind_button = Button(self.frame, text="WIND", fg="red", command=self.draw_wind)
-        wind_button.pack(side=LEFT)
         step_button = Button(self.frame, text="STEP", fg="red", command=self.app.step)
         step_button.pack(side=LEFT)
         quit_button = Button(self.frame, text="QUIT", fg="red", command=self.frame.quit)
         quit_button.pack(side=LEFT)
 
     def add_map(self):
+        """ add a blank map """
         self.map = Canvas(self.master, width=settings.map_width + 2*settings.map_border,
                           height=settings.map_height + 2*settings.map_border, bg="yellow",
                           highlightthickness=0)
         self.map.pack(side=LEFT)
 
     def create_tiles(self):
+        """ create blank tiles """
         self.map.delete("all")
         self.tiles = []
         for cell in self.cells:
@@ -48,10 +53,14 @@ class UI():
                 outline=""))
 
     def paint_tiles(self):
+        """ color the tiles """
         for x in range(settings.world_cell_width*settings.world_cell_height):
             self.map.itemconfigure(self.tiles[x], fill=self.cell_color(self.cells[x]))
 
     def cell_color(self, cell):
+        """ Work out what color a tile should be depending on the cell it is
+        depicting and the draw_mode parameter.
+        """
         if settings.draw_mode == "terrain":
             if cell.water.volume == 0:
                 col_min = [50, 20, 4]
@@ -76,13 +85,11 @@ class UI():
         return '#%02X%02X%02X' % (col[0], col[1], col[2])
 
     def draw_terrain(self):
+        """ paint map by altitude """
         settings.draw_mode = "terrain"
         self.paint_tiles()
 
     def draw_heat(self):
+        """ paint map by land temperature """
         settings.draw_mode = "heat"
-        self.paint_tiles()
-
-    def draw_wind(self):
-        settings.draw_mode = "wind"
         self.paint_tiles()
