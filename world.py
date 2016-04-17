@@ -1,7 +1,6 @@
 import random
 import numpy as np
 from cell import Cell
-from sun import Sun
 import settings
 
 
@@ -141,51 +140,7 @@ class World():
         print "equatorial cell: temp = {}, wind = {}".format(self.cells[half].temperature - 273, self.cells[half].wind_speed)
 
     def blow_wind(self):
-        """ use calculated wind speeds to transfer thermal energy between cells """
-        index = list(range(settings.world_cell_width*settings.world_cell_height))
-        random.shuffle(index)
-        for i in index:
-            cell = self.cells[i]
-            # how much thermal energy remains with them
-            kept_energy = (((300-abs(cell.wind[0]))*(300-abs(cell.wind[1]))) /
-                           (300*300)) * cell.thermal_energy
-
-            # how much do they gain along the x axis
-            if cell.wind[0] == 0:
-                wind_from_x = cell
-            elif cell.wind[0] > 1:
-                wind_from_x = self.cell_at(cell.x-1, cell.y)
-            else:
-                wind_from_x = self.cell_at(cell.x+1, cell.y)
-            gained_energy_x = ((abs(cell.wind[0])*(300-abs(cell.wind[1]))) /
-                               (300*300)) * wind_from_x.thermal_energy
-
-            #how much do they gain along the y axis
-            if cell.wind[1] == 0:
-                wind_from_y = cell
-            elif cell.wind[1] > 1:
-                wind_from_y = self.cell_at(cell.x, cell.y-1)
-            else:
-                wind_from_y = self.cell_at(cell.x, cell.y+1)
-            gained_energy_y = ((abs(cell.wind[1])*(300-abs(cell.wind[0]))) /
-                               (300*300)) * wind_from_y.thermal_energy
-
-            # how much do they gain along the diagonal
-            if cell.wind[0] == 0 or cell.wind[1] == 0:
-                wind_from_x_y = cell
-            else:
-                if cell.wind[0] > 0 and cell.wind[1] > 0:
-                    wind_from_x_y = self.cell_at(cell.x-1, cell.y+1)
-                elif cell.wind[0] > 0 and cell.wind[1] < 0:
-                    wind_from_x_y = self.cell_at(cell.x-1, cell.y-1)
-                elif cell.wind[0] < 0 and cell.wind[1] > 0:
-                    wind_from_x_y = self.cell_at(cell.x+1, cell.y+1)
-                elif cell.wind[0] < 0 and cell.wind[1] < 0:
-                    wind_from_x_y = self.cell_at(cell.x+1, cell.y-1)
-            gained_energy_x_y = ((abs(cell.wind[1])*abs(cell.wind[0])) /
-                                 (300*300)) * wind_from_x_y.thermal_energy
-
-            cell.thermal_energy = kept_energy + gained_energy_x + gained_energy_y + gained_energy_x_y
+            pass
 
     def radiate_energy(self):
         """ lose thermal energy (kJ) into space """
