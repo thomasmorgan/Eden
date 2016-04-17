@@ -26,12 +26,12 @@ class Land():
 
     def __init__(self):
         self.mass = pow(settings.cell_size, 2)*settings.land_depth*settings.land_density
-        self.thermal_energy = 1.0*pow(10, 18)
+        self.thermal_energy = settings.initial_land_temperature * self.mass * settings.land_specific_heat_capacity
         self.height = None
         self.calculate_temperature()
 
     def calculate_temperature(self):
-        self.temperature = self.thermal_energy/(self.mass + settings.land_specific_heat)
+        self.temperature = self.thermal_energy/(self.mass + settings.land_specific_heat_capacity)
 
 
 class Water():

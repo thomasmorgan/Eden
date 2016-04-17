@@ -15,6 +15,8 @@ stefan_boltzmann_constant = 5.6703*pow(10, -8)
 earths_circumference = 40.075*pow(10, 6)  # (m)
 earths_water_volume = 1.386*pow(10, 18)  # (m^3) http://water.usgs.gov/edu/gallery/global-water-volume.html
 earths_energy_production = 47*pow(10, 12)  # (W) https://en.wikipedia.org/wiki/Earth%27s_internal_heat_budget
+earths_crust_density = 3000  # (kg/m^3) https://en.wikipedia.org/wiki/Structure_of_the_Earth#Core
+earths_crust_specific_heat_capacity = 800  # (J/K kg) http://www.engineeringtoolbox.com/specific-heat-capacity-d_391.html
 
 """ sun's parameters """
 suns_power = 3.846*pow(10, 26)  # (W) https://en.wikipedia.org/wiki/Sun#Structure
@@ -26,22 +28,18 @@ earth_sun_distance = 149.6*pow(10, 9)  # (m) http://www.space.com/17081-how-far-
 ######################## """
 
 """ world size """
-# circumference of world (km)
-# 40000 = earth
-world_circumference = 1.0 * earths_circumference
-# radius of world
-world_radius = world_circumference/(1*math.pi)
+world_circumference = 1.0 * earths_circumference  # (m)
+world_radius = world_circumference/(1*math.pi)  # (m)
+total_water_volume = 0*earths_water_volume  # (m^3)
 # how wide is the world (in cells)
 # this absolutely needs to be a power of 2!
 world_cell_width = pow(2, 6)
 # how tall is the world (in cells)
 # this absolutely needs to be a power of 2!
 world_cell_height = pow(2, 6)
-# how big is each cell? (in km)
-cell_size = world_circumference/world_cell_width
-# total water volume (km^3)
-# 1386000000 = earth
-total_water_volume = 0*earths_water_volume
+# how big is each cell?
+cell_size = world_circumference/world_cell_width  # (m)
+
 
 """ world shape """
 # how smooth is the world
@@ -71,19 +69,16 @@ beta_a = 1.2
 beta_b = 4
 
 """ land properties """
-# how dense is the land (kg/km^3)
-# true value of earth is 5515*pow(10, 9)
-land_density = 5515*pow(10, 9)
+land_density = earths_crust_density  # (kg/m^3)
 # how thick is the land
 land_depth = 0.005
 # how much energy is needed to heat it (kJ per kg per K)
-land_specific_heat = 1.0
+land_specific_heat_capacity = earths_crust_specific_heat_capacity  # (J/K kg)
 # thermal conductivity of land (Watts per m per K)
 land_thermal_conductivity = 1.5
 
 """ world energy budgets """
-# initial temp (K) (273 = 0C)
-initial_temperature = 283
+initial_land_temperature = 283  # (K)
 # rate of core energy production (kJ per cell per day)
 thermal_energy_from_core_per_day_per_cell = earths_energy_production*(60*60*24)/(world_cell_height*world_cell_width)
 
