@@ -12,9 +12,9 @@ stefan_boltzmann_constant = 5.6703*pow(10, -8)
 ###################################### """
 
 """ earth's parameters """
-earths_circumference = 40000
-earths_water_volume = 1386000000
-earths_energy_production = 4.7*pow(10, 9)
+earths_circumference = 40.075*pow(10, 6)  # (m)
+earths_water_volume = 1.386*pow(10, 18)  # (m^3) see: http://water.usgs.gov/edu/gallery/global-water-volume.html
+earths_energy_production = 47*pow(10, 12)  # (W) see: https://en.wikipedia.org/wiki/Earth%27s_internal_heat_budget
 
 """ sun's parameters """
 suns_total_daily_energy = 3.3*pow(10, 28)

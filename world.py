@@ -122,7 +122,7 @@ class World():
         """ lose thermal energy (kJ) into space """
         for c in self.cells:
             time = 60*60*40
-            area = pow(settings.cell_size*1000, 2)
+            area = pow(settings.cell_size, 2)
             c.land.thermal_energy -= settings.stefan_boltzmann_constant*pow(c.land.temperature, 4)*time*area/1000
 
     def absorb_energy_from_sun(self, sun):
@@ -149,7 +149,7 @@ class World():
 
             time = 60*60*24  # (s)
 
-            area = (settings.cell_size*1000*settings.land_depth*1000)  # m^2
+            area = (settings.cell_size*settings.land_depth*1000)  # m^2
 
             cell.x_energy_transfer = thermal_conductivity*area*time*(0 - x_temp_diff)/1000  # kJ
             cell.y_energy_transfer = thermal_conductivity*area*time*(0 - y_temp_diff)/1000  # kJ
