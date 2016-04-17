@@ -25,7 +25,7 @@ class Land():
 
     def __init__(self):
         self.mass = pow(settings.cell_size, 2)*settings.land_depth*settings.land_density
-        self.thermal_energy = 0.0  # 2.5*pow(10, 18)
+        self.thermal_energy = 1.0*pow(10, 18)
         self.height = None
         self.calculate_temperature()
 
