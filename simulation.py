@@ -21,8 +21,10 @@ class Simulation():
         self.world.absorb_energy_from_sun(self.sun)
         self.world.absorb_energy_from_core()
         self.world.calculate_temperature()
+        self.world.conduct_energy_between_cells()
+        self.world.calculate_temperature()
 
         print "****"
-        print "polar cell: temp = {}, energy = {}".format(self.world.cells[0].land.temperature - 273, self.world.cells[0].land.thermal_energy)
+        print "polar cell: temp = {}, energy = {}, transfer: {}".format(self.world.cells[0].land.temperature - 273, self.world.cells[0].land.thermal_energy, self.world.cells[0].y_energy_transfer)
         half = settings.world_cell_height*settings.world_cell_width/2
-        print "equatorial cell: temp = {}, energy = {}".format(self.world.cells[half].land.temperature - 273, self.world.cells[half].land.thermal_energy)
+        print "equatorial cell: temp = {}, energy = {}, transfer: {}".format(self.world.cells[half].land.temperature - 273, self.world.cells[half].land.thermal_energy, self.world.cells[half].y_energy_transfer)

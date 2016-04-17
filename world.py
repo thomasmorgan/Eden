@@ -25,6 +25,12 @@ class World():
             for x in range(settings.world_cell_width):
                 self.cells.append(Cell(x=x, y=y))
 
+        for cell in self.cells:
+            cell.north_neighbor = self.cell_at(cell.x, cell.y-1)
+            cell.south_neighbor = self.cell_at(cell.x, cell.y+1)
+            cell.west_neighbor = self.cell_at(cell.x-1, cell.y)
+            cell.east_neighbor = self.cell_at(cell.x+1, cell.y)
+
     def create_terrain(self):
         """ assign ground height values to all the tiles """
         # initialize the first four cells
@@ -182,21 +188,45 @@ class World():
             cell.thermal_energy = kept_energy + gained_energy_x + gained_energy_y + gained_energy_x_y
 
     def radiate_energy(self):
-        """ lose thermal energy into space """
+        """ lose thermal energy (kJ) into space """
         for c in self.cells:
             time = 60*60*40
             area = pow(settings.cell_size*1000, 2)
             c.land.thermal_energy -= settings.stefan_boltzmann_constant*pow(c.land.temperature, 4)*time*area/1000
 
     def absorb_energy_from_sun(self, sun):
-        """ gain thermal energy from the sun """
+        """ gain thermal energy (kJ) from the sun """
         for c in self.cells:
             c.land.thermal_energy += sun.max_solar_energy_per_cell*c.apparent_size_from_sun
 
     def absorb_energy_from_core(self):
-        """ gain thermal energy from within the earth """
+        """ gain thermal energy (kJ) from within the earth """
         for c in self.cells:
             c.land.thermal_energy += settings.thermal_energy_from_core_per_day_per_cell
+
+    def conduct_energy_between_cells(self):
+        """ thermal energy (kJ) is transmitted between cells """
+        index = list(range(settings.world_cell_width*settings.world_cell_height))
+        random.shuffle(index)
+        for i in index:
+            cell = self.cells[i]
+
+            thermal_conductivity = settings.land_thermal_conductivity
+
+            x_temp_diff = cell.east_neighbor.land.temperature - cell.land.temperature  # (K)
+            y_temp_diff = cell.south_neighbor.land.temperature - cell.land.temperature  # (K)
+
+            time = 60*60*24  # (s)
+
+            area = (settings.cell_size*1000*settings.land_depth*1000)  # m^2
+
+            cell.x_energy_transfer = thermal_conductivity*area*time*(0 - x_temp_diff)/1000  # kJ
+            cell.y_energy_transfer = thermal_conductivity*area*time*(0 - y_temp_diff)/1000  # kJ
+
+            cell.east_neighbor.land.thermal_energy = cell.east_neighbor.land.thermal_energy + cell.x_energy_transfer
+            cell.land.thermal_energy = cell.land.thermal_energy - cell.x_energy_transfer
+            cell.south_neighbor.land.thermal_energy = cell.south_neighbor.land.thermal_energy + cell.y_energy_transfer
+            cell.land.thermal_energy = cell.land.thermal_energy - cell.y_energy_transfer
 
     def calculate_temperature(self):
         """ calculate temperature given thermal energy """
