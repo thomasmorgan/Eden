@@ -15,8 +15,9 @@ stefan_boltzmann_constant = 5.6703*pow(10, -8)
 earths_circumference = 40.075*pow(10, 6)  # (m)
 earths_water_volume = 1.386*pow(10, 18)  # (m^3) http://water.usgs.gov/edu/gallery/global-water-volume.html
 earths_energy_production = 47*pow(10, 12)  # (W) https://en.wikipedia.org/wiki/Earth%27s_internal_heat_budget
-earths_crust_density = 3000  # (kg/m^3) https://en.wikipedia.org/wiki/Structure_of_the_Earth#Core
+earths_crust_density = 3000  # (kg/m^3) https://en.wikipedia.org/wiki/Structure_of_the_Earth#Core and http://www.engineeringtoolbox.com/metal-alloys-densities-d_50.html
 earths_crust_specific_heat_capacity = 800  # (J/K kg) http://www.engineeringtoolbox.com/specific-heat-capacity-d_391.html
+earths_crust_thermal_conductivity = 1.5  # (W/Km) http://www.engineeringtoolbox.com/thermal-conductivity-d_429.html
 
 """ sun's parameters """
 suns_power = 3.846*pow(10, 26)  # (W) https://en.wikipedia.org/wiki/Sun#Structure
@@ -68,8 +69,7 @@ beta_b = 4
 land_density = earths_crust_density  # (kg/m^3)
 land_depth = 5  # (m)
 land_specific_heat_capacity = earths_crust_specific_heat_capacity  # (J/K kg)
-# thermal conductivity of land (Watts per m per K)
-land_thermal_conductivity = 1.5
+land_thermal_conductivity = earths_crust_thermal_conductivity*0
 
 """ world energy budgets """
 initial_land_temperature = 283  # (K)
