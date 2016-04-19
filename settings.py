@@ -66,24 +66,19 @@ beta_b = 4
 
 """ land properties """
 land_density = earths_crust_density  # (kg/m^3)
-# how thick is the land
-land_depth = 0.005
-# how much energy is needed to heat it (kJ per kg per K)
+land_depth = 5  # (m)
 land_specific_heat_capacity = earths_crust_specific_heat_capacity  # (J/K kg)
 # thermal conductivity of land (Watts per m per K)
 land_thermal_conductivity = 1.5
 
 """ world energy budgets """
 initial_land_temperature = 283  # (K)
-# rate of core energy production (kJ per cell per day)
-thermal_energy_from_core_per_day_per_cell = earths_energy_production*(60*60*24)/(world_cell_height*world_cell_width)
+world_power = earths_energy_production  # (W)
 
 
 """ sun properties """
-# power of the sun
-sun_power = suns_power
-# how far away is the sun (in km, 150000000 is true value)
-sun_distance = earth_sun_distance*1
+sun_power = suns_power  # (W)
+sun_distance = earth_sun_distance*1  # (m)
 
 
 """ ########################
