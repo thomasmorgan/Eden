@@ -31,7 +31,7 @@ class Land():
         self.calculate_temperature()
 
     def calculate_temperature(self):
-        self.temperature = self.thermal_energy/(self.mass + settings.land_specific_heat_capacity)
+        self.temperature = self.thermal_energy/(self.mass*settings.land_specific_heat_capacity)
 
 
 class Water():
