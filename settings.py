@@ -55,10 +55,10 @@ smoothness_buffer = 10
 smoothness_rate = 1
 # tallest possible ground height (km)
 # must be > 0
-max_ground_height = 10
+max_ground_height = 10000
 # lowest possible ground height (km)
 # must be < 0
-min_ground_height = -10
+min_ground_height = -10000
 # how are random ground heights generated? beta_a and beta_b are the two parameters of a beta distribution
 # a=b=1 -> uniform
 # a=b > 1 -> increasingly normal
