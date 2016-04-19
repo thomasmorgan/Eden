@@ -153,22 +153,20 @@ class World():
 
     def conduct_energy_between_cells(self):
         """ thermal energy (kJ) is transmitted between cells """
+        time = 60*60*24  # (s)
+        area = (settings.cell_size*settings.land_depth)  # (m^2)
+        thermal_conductivity = settings.land_thermal_conductivity
+
         index = list(range(settings.world_cell_width*settings.world_cell_height))
         random.shuffle(index)
         for i in index:
             cell = self.cells[i]
 
-            thermal_conductivity = settings.land_thermal_conductivity
-
             x_temp_diff = cell.east_neighbor.land.temperature - cell.land.temperature  # (K)
             y_temp_diff = cell.south_neighbor.land.temperature - cell.land.temperature  # (K)
 
-            time = 60*60*24  # (s)
-
-            area = (settings.cell_size*settings.land_depth*1000)  # m^2
-
-            cell.x_energy_transfer = thermal_conductivity*area*time*(0 - x_temp_diff)/1000  # kJ
-            cell.y_energy_transfer = thermal_conductivity*area*time*(0 - y_temp_diff)/1000  # kJ
+            cell.x_energy_transfer = thermal_conductivity*area*time*(0 - x_temp_diff)  # J
+            cell.y_energy_transfer = thermal_conductivity*area*time*(0 - y_temp_diff)  # J
 
             cell.east_neighbor.land.thermal_energy = cell.east_neighbor.land.thermal_energy + cell.x_energy_transfer
             cell.land.thermal_energy = cell.land.thermal_energy - cell.x_energy_transfer
