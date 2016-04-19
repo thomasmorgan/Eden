@@ -120,7 +120,13 @@ class World():
     ######################"""
 
     def radiate_energy(self):
-        """ lose thermal energy (kJ) into space """
+        """ lose thermal energy (kJ) into space.
+        see:
+        https://en.wikipedia.org/wiki/Stefan-Boltzmann_law
+        https://en.wikipedia.org/wiki/Stefan-Boltzmann_constant
+        eden/docs/thermal energy formulae.docx
+         """
+
         time = 60*60*24
         area = pow(settings.cell_size, 2)
         Z = settings.stefan_boltzmann_constant*area/(pow(self.cells[0].land.mass, 4)*pow(settings.land_specific_heat_capacity, 4))
