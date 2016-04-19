@@ -152,7 +152,14 @@ class World():
             c.land.thermal_energy += e_per_cell
 
     def conduct_energy_between_cells(self):
-        """ thermal energy (kJ) is transmitted between cells """
+        """ thermal energy (kJ) is transmitted between cells
+
+        Note that this method makes severe deviations from real physics.
+        The rate of conduction is proportional to the energy difference
+        and so decreases as conduction occurs. However, the proper solution
+        requires integration beyond my abilities and so I have assumed that
+        the rate of conduction depends only on the starting temperature difference.
+        """
         time = 60*60*24  # (s)
         area = (settings.cell_size*settings.land_depth)  # (m^2)
         thermal_conductivity = settings.land_thermal_conductivity
@@ -165,13 +172,12 @@ class World():
             x_temp_diff = cell.east_neighbor.land.temperature - cell.land.temperature  # (K)
             y_temp_diff = cell.south_neighbor.land.temperature - cell.land.temperature  # (K)
 
-            cell.x_energy_transfer = thermal_conductivity*area*time*(0 - x_temp_diff)  # J
-            cell.y_energy_transfer = thermal_conductivity*area*time*(0 - y_temp_diff)  # J
+            x_energy_transfer = thermal_conductivity*area*time*(x_temp_diff)/settings.cell_size  # J
+            y_energy_transfer = thermal_conductivity*area*time*(y_temp_diff)/settings.cell_size  # J
 
-            cell.east_neighbor.land.thermal_energy = cell.east_neighbor.land.thermal_energy + cell.x_energy_transfer
-            cell.land.thermal_energy = cell.land.thermal_energy - cell.x_energy_transfer
-            cell.south_neighbor.land.thermal_energy = cell.south_neighbor.land.thermal_energy + cell.y_energy_transfer
-            cell.land.thermal_energy = cell.land.thermal_energy - cell.y_energy_transfer
+            cell.land.thermal_energy = cell.land.thermal_energy + x_energy_transfer + y_energy_transfer
+            cell.east_neighbor.land.thermal_energy = cell.east_neighbor.land.thermal_energy - x_energy_transfer
+            cell.south_neighbor.land.thermal_energy = cell.south_neighbor.land.thermal_energy - y_energy_transfer
 
     def calculate_temperature(self):
         """ calculate temperature given thermal energy """
