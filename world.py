@@ -123,8 +123,10 @@ class World():
         """ lose thermal energy (kJ) into space """
         time = 60*60*24
         area = pow(settings.cell_size, 2)
+        Z = settings.stefan_boltzmann_constant*area/(pow(self.cells[0].land.mass, 4)*pow(settings.land_specific_heat_capacity, 4))
+        Z = 3*Z*time
         for c in self.cells:
-            c.land.thermal_energy -= settings.stefan_boltzmann_constant*pow(c.land.temperature, 4)*time*area/1000
+            c.land.thermal_energy = pow(Z + pow(c.land.thermal_energy, -3), -1.0/3.0)
 
     def absorb_energy_from_sun(self, sun):
         """ gain thermal energy (kJ) from the sun """
