@@ -144,8 +144,12 @@ class World():
 
     def absorb_energy_from_core(self):
         """ gain thermal energy (kJ) from within the earth """
+        W = settings.world_power
+        time = 60*60*24
+        E = W*time
+        e_per_cell = E / len(self.cells)
         for c in self.cells:
-            c.land.thermal_energy += settings.thermal_energy_from_core_per_day_per_cell
+            c.land.thermal_energy += e_per_cell
 
     def conduct_energy_between_cells(self):
         """ thermal energy (kJ) is transmitted between cells """
