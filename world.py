@@ -137,9 +137,10 @@ class World():
     def absorb_energy_from_sun(self, sun):
         """ gain thermal energy (kJ) from the sun """
         time = 60*60*24
-        max_power = pow(settings.cell_size, 2)/(4*math.pi*pow(sun.distance, 2))*sun.power
+        max_W = pow(settings.cell_size, 2)/(4*math.pi*pow(sun.distance, 2))*sun.power
+        max_E = max_W*time
         for c in self.cells:
-            c.land.thermal_energy += max_power*c.apparent_size_from_sun*time
+            c.land.thermal_energy += max_E*c.apparent_size_from_sun
 
     def absorb_energy_from_core(self):
         """ gain thermal energy (kJ) from within the earth """
