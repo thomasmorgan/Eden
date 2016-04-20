@@ -23,12 +23,11 @@ class Simulation():
         self.sun = Sun()
 
     def step(self):
-        """ progress forward 1 day """
-        self.world.radiate_energy()
+        """ progress forward 1 time step """
+        self.world.conduct_energy_between_cells()
         self.world.absorb_energy_from_sun(self.sun)
         self.world.absorb_energy_from_core()
-        self.world.calculate_temperature()
-        self.world.conduct_energy_between_cells()
+        self.world.radiate_energy()
         self.world.calculate_temperature()
 
         print "****"
