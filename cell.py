@@ -31,6 +31,8 @@ class Land():
         self.calculate_temperature()
 
     def calculate_temperature(self):
+        """ calculate the temperature of the cell given its thermal energy """
+        # see: https://en.wikipedia.org/wiki/Heat_capacity
         self.temperature = self.thermal_energy/(self.mass*settings.land_specific_heat_capacity)
 
 
