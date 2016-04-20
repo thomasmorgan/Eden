@@ -127,7 +127,7 @@ class World():
         eden/docs/thermal energy formulae.docx
          """
 
-        time = 60*60*24
+        time = settings.time_step_size
         area = pow(settings.cell_size, 2)
         Z = settings.stefan_boltzmann_constant*area/(pow(self.cells[0].land.mass, 4)*pow(settings.land_specific_heat_capacity, 4))
         Z = 3*Z*time
@@ -136,7 +136,7 @@ class World():
 
     def absorb_energy_from_sun(self, sun):
         """ gain thermal energy (kJ) from the sun """
-        time = 60*60*24
+        time = settings.time_step_size
         max_W = pow(settings.cell_size, 2)/(4*math.pi*pow(sun.distance, 2))*sun.power
         max_E = max_W*time
         for c in self.cells:
@@ -145,7 +145,7 @@ class World():
     def absorb_energy_from_core(self):
         """ gain thermal energy (kJ) from within the earth """
         W = settings.world_power
-        time = 60*60*24
+        time = settings.time_step_size
         E = W*time
         e_per_cell = E / len(self.cells)
         for c in self.cells:
@@ -160,7 +160,7 @@ class World():
         requires integration beyond my abilities and so I have assumed that
         the rate of conduction depends only on the starting temperature difference.
         """
-        time = 60*60*24  # (s)
+        time = settings.time_step_size  # (s)
         area = (settings.cell_size*settings.land_depth)  # (m^2)
         thermal_conductivity = settings.land_thermal_conductivity
 
