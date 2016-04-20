@@ -23,6 +23,12 @@ earths_crust_thermal_conductivity = 1.5  # (W/Km) http://www.engineeringtoolbox.
 suns_power = 3.846*pow(10, 26)  # (W) https://en.wikipedia.org/wiki/Sun#Structure
 earth_sun_distance = 149.6*pow(10, 9)  # (m) http://www.space.com/17081-how-far-is-earth-from-the-sun.html
 
+""" ########################
+#####  GAME SETTINGS  ######
+######################## """
+
+time_step_size = 60*60*24  # (s)
+
 
 """ ########################
 #####  WORLD SETTINGS  #####
