@@ -23,6 +23,12 @@ earths_crust_thermal_conductivity = 1.5  # (W/Km) http://www.engineeringtoolbox.
 suns_power = 3.846*pow(10, 26)  # (W) https://en.wikipedia.org/wiki/Sun#Structure
 earth_sun_distance = 149.6*pow(10, 9)  # (m) http://www.space.com/17081-how-far-is-earth-from-the-sun.html
 
+""" albedos """
+soil_albedo = 0.17  # https://en.wikipedia.org/wiki/Albedo
+
+""" emmisivities """
+soil_emissivity = 0.92  # http://www.thermoworks.com/emissivity_table.html
+
 """ ########################
 #####  GAME SETTINGS  ######
 ######################## """
