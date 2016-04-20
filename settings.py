@@ -81,7 +81,9 @@ beta_b = 4
 land_density = earths_crust_density  # (kg/m^3)
 land_depth = 5  # (m)
 land_specific_heat_capacity = earths_crust_specific_heat_capacity  # (J/K kg)
-land_thermal_conductivity = earths_crust_thermal_conductivity*0
+land_thermal_conductivity = earths_crust_thermal_conductivity
+land_albedo = soil_albedo
+land_emissivity = soil_emissivity
 
 """ world energy budgets """
 initial_land_temperature = 283  # (K)
