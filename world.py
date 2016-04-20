@@ -129,7 +129,7 @@ class World():
 
         time = settings.time_step_size
         area = pow(settings.cell_size, 2)
-        Z = settings.stefan_boltzmann_constant*area/(pow(self.cells[0].land.mass, 4)*pow(settings.land_specific_heat_capacity, 4))
+        Z = settings.stefan_boltzmann_constant*area*settings.soil_emissivity/(pow(self.cells[0].land.mass, 4)*pow(settings.land_specific_heat_capacity, 4))
         Z = 3*Z*time
         for c in self.cells:
             c.land.thermal_energy = pow(Z + pow(c.land.thermal_energy, -3), -1.0/3.0)
@@ -138,7 +138,7 @@ class World():
         """ gain thermal energy (kJ) from the sun """
         time = settings.time_step_size
         max_W = pow(settings.cell_size, 2)/(4*math.pi*pow(sun.distance, 2))*sun.power
-        max_E = max_W*time
+        max_E = max_W*time*(1-settings.soil_albedo)
         for c in self.cells:
             c.land.thermal_energy += max_E*c.apparent_size_from_sun
 
