@@ -19,7 +19,7 @@ class UI():
         self.add_buttons()
         self.add_map()
         self.create_tiles()
-        #self.paint_tiles()
+        self.paint_tiles()
 
     def add_buttons(self):
         """ add buttons to the frame """
@@ -45,20 +45,20 @@ class UI():
         self.tiles = []
         for cell in self.cells:
             n_in_row = len([c for c in self.cells if c.latitude == cell.latitude])
-            x_start = (settings.map_width/2.0) - (n_in_row/2.0)*settings.cell_width
-            y_start = (cell.latitude/settings.cell_degree_width)*settings.cell_height
+            x_start = (settings.map_width/2.0) - (n_in_row/2.0)*settings.tile_width
+            y_start = (cell.latitude/settings.cell_degree_width)*settings.tile_height
 
             self.tiles.append(self.map.create_rectangle(
-                x_start + (cell.longitude/360.0)*n_in_row*settings.cell_width,
+                x_start + (cell.longitude/360.0)*n_in_row*settings.tile_width,
                 y_start,
-                x_start + (cell.longitude/360.0)*n_in_row*settings.cell_width + settings.cell_width,
-                y_start + settings.cell_height,
+                x_start + (cell.longitude/360.0)*n_in_row*settings.tile_width + settings.tile_width + 1,
+                y_start + settings.tile_height,
                 fill="yellow",
                 outline=""))
 
     def paint_tiles(self):
         """ color the tiles """
-        for x in range(settings.world_cell_width*settings.world_cell_height):
+        for x in range(len(self.tiles)):
             self.map.itemconfigure(self.tiles[x], fill=self.cell_color(self.cells[x]))
 
     def cell_color(self, cell):
@@ -66,14 +66,14 @@ class UI():
         depicting and the draw_mode parameter.
         """
         if settings.draw_mode == "terrain":
-            if cell.water.volume == 0:
+            if cell.water_depth == 0:
                 col_min = [50, 20, 4]
                 col_max = [255, 255, 255]
                 p = (cell.land.height - settings.min_ground_height)/(settings.max_ground_height - settings.min_ground_height)
             else:
                 col_min = [153, 204, 255]
                 col_max = [0, 0, 40]
-                p = cell.water.volume/(settings.max_ground_height - settings.min_ground_height)
+                p = cell.water_depth/(settings.max_ground_height - settings.min_ground_height)
                 if p > 1:
                     p = 1
         elif settings.draw_mode == "heat":

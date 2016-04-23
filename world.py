@@ -18,7 +18,9 @@ class World():
     def __init__(self):
         """ build a world! """
         self.create_cells()
-        #self.create_terrain()
+        self.create_terrain()
+        self.normalize_terrain()
+        self.create_oceans()
 
     def create_cells(self):
         """ create a list of the tile objects that constitute the terrain of the world """
@@ -31,77 +33,24 @@ class World():
             else:
                 rad = math.sin(math.radians(latitude))*settings.world_radius
                 circ = 2*math.pi*rad
-                cells = int(round(circ/float(settings.cell_size)))
+                cells = int(round(circ/float(settings.cell_width)))
                 for x in range(cells):
                     longitude = (360.0/float(cells))*x
                     self.cells.append(Cell(longitude=longitude, latitude=latitude))
 
     def create_terrain(self):
         """ assign ground height values to all the tiles """
-        # initialize the first four cells
-        x_step = settings.world_cell_width/2
-        y_step = settings.world_cell_height/2
-        coords = [[0, x_step], [0, y_step]]
-        for x in coords[0]:
-            for y in coords[1]:
-                cell = self.cell_at(x=x, y=y)
-                cell.land.height = self.random_ground_height()
-
-        # now loop through all other cells
-        while True:
-            # halve the step size
-            x_step = x_step/2
-            y_step = y_step/2
-            # if step size = 0 you are done
-            if x_step == 0 and y_step == 0:
-                break
-            # if only one = 0, put it back to 1
-            if x_step == 0:
-                x_step = 1
-            if y_step == 0:
-                y_step = 1
-
-            # calculate distance and weighting:
-            distance = pow(pow(x_step, 2) + pow(y_step, 2), 0.5)
-            influence = self.height_influence(distance)
-
-            # shift diagonally to get the next cells
-            coords = [[x+x_step for x in coords[0]], [y+y_step for y in coords[1]]]
-            for x in coords[0]:
-                for y in coords[1]:
-                    cell = self.cell_at(x=x, y=y)
-                    if cell.land.height is None:
-                        if influence == 0:
-                            cell.land.height = self.random_ground_height()
-                        else:
-                            neighbors = [self.cell_at(x=x+x_step, y=y+y_step),
-                                         self.cell_at(x=x-x_step, y=y+y_step),
-                                         self.cell_at(x=x+x_step, y=y-y_step),
-                                         self.cell_at(x=x-x_step, y=y-y_step)]
-                            cell.land.height = sum([n.land.height*influence for n in neighbors] +
-                                                   [self.random_ground_height()*(1-4*influence)])
-
-            # get next set of cells
-            coords = self.get_coordinate_set(x_step=x_step, y_step=y_step)
-            # calculate distance and weighting:
-            x_influence = self.height_influence(x_step)
-            y_influence = self.height_influence(y_step)
-
-            for x in coords[0]:
-                for y in coords[1]:
-                    cell = self.cell_at(x=x, y=y)
-                    if cell.land.height is None:
-                        if x_influence == 0 and y_influence == 0:
-                            cell.land.height = self.random_ground_height()
-                        else:
-                            y_neighbors = [self.cell_at(x=x, y=y+y_step),
-                                           self.cell_at(x=x, y=y-y_step)]
-                            x_neighbors = [self.cell_at(x=x+x_step, y=y),
-                                           self.cell_at(x=x-x_step, y=y)]
-                            cell.land.height = sum([n.land.height*x_influence for n in x_neighbors] +
-                                                   [n.land.height*y_influence for n in y_neighbors] +
-                                                   [self.random_ground_height()*(1-2*x_influence-2*y_influence)])
-        self.normalize_terrain()
+        # see http://mathworld.wolfram.com/GreatCircle.html
+        settings.n_distortions = 400
+        for _ in range(settings.n_distortions):
+            delta_height = 5000
+            delta_rate = random.random()*3 + 3
+            cell = random.choice(self.cells)
+            for c in self.cells:
+                dum1 = math.cos(math.radians(cell.latitude))*math.cos(math.radians(c.latitude))
+                dum2 = math.sin(math.radians(cell.latitude))*math.sin(math.radians(c.latitude))*math.cos(abs(math.radians(cell.longitude) - math.radians(c.longitude)))
+                distance = settings.world_radius*math.acos(max(min(dum1 + dum2, 1.0), -1.0))
+                c.land.height += delta_height / (distance/(100000*delta_rate) + 1)
 
     def create_oceans(self):
         """ fill the oceans """
@@ -131,7 +80,7 @@ class World():
          """
 
         time = settings.time_step_size
-        area = pow(settings.cell_size, 2)
+        area = pow(settings.cell_width, 2)
         Z = settings.stefan_boltzmann_constant*area*settings.land_emissivity/(pow(self.cells[0].land.mass, 4)*pow(settings.land_specific_heat_capacity, 4))
         Z = 3*Z*time
         for c in self.cells:
@@ -245,4 +194,4 @@ class World():
         return self.cells[x + y*settings.world_cell_width]
 
     def water_volume(self):
-        return sum([(self.water_level - t.land.height) for t in self.cells if t.land.height < self.water_level])*pow(settings.cell_size, 2)
+        return sum([(self.water_level - t.land.height) for t in self.cells if t.land.height < self.water_level])*settings.cell_area
