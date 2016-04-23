@@ -80,7 +80,7 @@ class World():
          """
 
         time = settings.time_step_size
-        area = pow(settings.cell_width, 2)
+        area = settings.cell_area
         Z = settings.stefan_boltzmann_constant*area*settings.land_emissivity/(pow(self.cells[0].land.mass, 4)*pow(settings.land_specific_heat_capacity, 4))
         Z = 3*Z*time
         for c in self.cells:
@@ -89,10 +89,11 @@ class World():
     def absorb_energy_from_sun(self, sun):
         """ gain thermal energy (kJ) from the sun """
         time = settings.time_step_size
-        max_W = pow(settings.cell_size, 2)/(4*math.pi*pow(sun.distance, 2))*sun.power
+        max_W = settings.cell_area/(4*math.pi*pow(sun.distance, 2))*sun.power
         max_E = max_W*time*(1-settings.land_albedo)
+
         for c in self.cells:
-            c.land.thermal_energy += max_E*c.apparent_size_from_sun
+            c.land.thermal_energy += max_E*c.facing_sun
 
     def absorb_energy_from_core(self):
         """ gain thermal energy (kJ) from within the earth """
@@ -112,24 +113,24 @@ class World():
         requires integration beyond my abilities and so I have assumed that
         the rate of conduction depends only on the starting temperature difference.
         """
-        time = settings.time_step_size  # (s)
-        area = (settings.cell_size*settings.land_depth)  # (m^2)
-        thermal_conductivity = settings.land_thermal_conductivity
+        # time = settings.time_step_size  # (s)
+        # area = (settings.cell_width*settings.land_depth)  # (m^2)
+        # thermal_conductivity = settings.land_thermal_conductivity
 
-        index = list(range(settings.world_cell_width*settings.world_cell_height))
-        random.shuffle(index)
-        for i in index:
-            cell = self.cells[i]
+        # index = list(range(len(self.cells)))
+        # random.shuffle(index)
+        # for i in index:
+        #     cell = self.cells[i]
 
-            x_temp_diff = cell.east_neighbor.land.temperature - cell.land.temperature  # (K)
-            y_temp_diff = cell.south_neighbor.land.temperature - cell.land.temperature  # (K)
+        #     x_temp_diff = cell.east_neighbor.land.temperature - cell.land.temperature  # (K)
+        #     y_temp_diff = cell.south_neighbor.land.temperature - cell.land.temperature  # (K)
 
-            x_energy_transfer = thermal_conductivity*area*time*(x_temp_diff)/settings.cell_size  # J
-            y_energy_transfer = thermal_conductivity*area*time*(y_temp_diff)/settings.cell_size  # J
+        #     x_energy_transfer = thermal_conductivity*area*time*(x_temp_diff)/settings.cell_size  # J
+        #     y_energy_transfer = thermal_conductivity*area*time*(y_temp_diff)/settings.cell_size  # J
 
-            cell.land.thermal_energy = cell.land.thermal_energy + x_energy_transfer + y_energy_transfer
-            cell.east_neighbor.land.thermal_energy = cell.east_neighbor.land.thermal_energy - x_energy_transfer
-            cell.south_neighbor.land.thermal_energy = cell.south_neighbor.land.thermal_energy - y_energy_transfer
+        #     cell.land.thermal_energy = cell.land.thermal_energy + x_energy_transfer + y_energy_transfer
+        #     cell.east_neighbor.land.thermal_energy = cell.east_neighbor.land.thermal_energy - x_energy_transfer
+        #     cell.south_neighbor.land.thermal_energy = cell.south_neighbor.land.thermal_energy - y_energy_transfer
 
     def calculate_temperature(self):
         """ calculate temperature given thermal energy """

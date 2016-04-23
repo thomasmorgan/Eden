@@ -12,7 +12,7 @@ class Cell():
     def __init__(self, latitude, longitude):
         self.latitude = latitude
         self.longitude = longitude
-        self.apparent_size_from_sun = math.sin(math.radians(self.latitude))*settings.cell_area
+        self.facing_sun = math.sin(math.radians(self.latitude))
         self.land = Land()
         self.water = Water()
 
@@ -25,7 +25,7 @@ class Land():
     """ The terrain of a cell """
 
     def __init__(self):
-        self.mass = pow(settings.cell_area, 2)*settings.land_depth*settings.land_density
+        self.mass = settings.cell_area*settings.land_depth*settings.land_density
         self.thermal_energy = settings.initial_land_temperature * self.mass * settings.land_specific_heat_capacity
         self.height = 0.0
         self.calculate_temperature()
