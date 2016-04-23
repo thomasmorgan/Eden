@@ -44,14 +44,9 @@ time_step_size = 60*60*24  # (s)
 world_circumference = 1.0 * earths_circumference  # (m)
 world_radius = world_circumference/(2*math.pi)  # (m)
 total_water_volume = 0*earths_water_volume  # (m^3)
-# how wide is the world (in cells)
-# this absolutely needs to be a power of 2!
-world_cell_width = pow(2, 6)
-# how tall is the world (in cells)
-# this absolutely needs to be a power of 2!
-world_cell_height = pow(2, 6)
-# how big is each cell?
-cell_size = world_circumference/world_cell_width  # (m)
+world_cell_circumference = pow(2, 7)  # (cells)
+cell_degree_width = 360.0/float(world_cell_circumference)  # (degrees)
+cell_size = world_circumference/world_cell_circumference  # (m)
 
 
 """ world shape """
@@ -100,14 +95,14 @@ sun_distance = earth_sun_distance*1  # (m)
 ######################## """
 
 # width of map in px
-map_width = 750
+map_width = 1200
 # height of map in px
-map_height = 750
+map_height = 600
 # width of border around map in px
 map_border = 0
 # size of each cell
-cell_height = map_height/float(world_cell_height)
-cell_width = map_width/float(world_cell_width)
+cell_height = map_height/float(world_cell_circumference/2 + 1)
+cell_width = map_width/float(world_cell_circumference)
 # boolean, draw water?
 draw_water = True
 # what mode are we drawing

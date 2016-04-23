@@ -9,12 +9,12 @@ class Cell():
     the world's surface.
     """
 
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.apparent_size_from_sun = math.cos(abs(self.y - (settings.world_cell_height-1)/2.0)/((settings.world_cell_height-1)/2.0)*(math.pi/2))
-        self.land = Land()
-        self.water = Water()
+    def __init__(self, latitude, longitude):
+        self.latitude = latitude
+        self.longitude = longitude
+        #self.apparent_size_from_sun = math.cos(abs(self.y - (settings.world_cell_height-1)/2.0)/((settings.world_cell_height-1)/2.0)*(math.pi/2))
+        #self.land = Land()
+        #self.water = Water()
 
     def calculate_temperature(self):
         self.land.calculate_temperature()

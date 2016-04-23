@@ -18,20 +18,23 @@ class World():
     def __init__(self):
         """ build a world! """
         self.create_cells()
-        self.create_terrain()
+        #self.create_terrain()
 
     def create_cells(self):
         """ create a list of the tile objects that constitute the terrain of the world """
         self.cells = []
-        for y in range(settings.world_cell_height):
-            for x in range(settings.world_cell_width):
-                self.cells.append(Cell(x=x, y=y))
+        for y in range(settings.world_cell_circumference/2 + 1):
+            latitude = 360.0/float(settings.world_cell_circumference)*y
 
-        for cell in self.cells:
-            cell.north_neighbor = self.cell_at(cell.x, cell.y-1)
-            cell.south_neighbor = self.cell_at(cell.x, cell.y+1)
-            cell.west_neighbor = self.cell_at(cell.x-1, cell.y)
-            cell.east_neighbor = self.cell_at(cell.x+1, cell.y)
+            if latitude in [0, 180]:
+                self.cells.append(Cell(longitude=0.0, latitude=latitude))
+            else:
+                rad = math.sin(math.radians(latitude))*settings.world_radius
+                circ = 2*math.pi*rad
+                cells = int(round(circ/float(settings.cell_size)))
+                for x in range(cells):
+                    longitude = (360.0/float(cells))*x
+                    self.cells.append(Cell(longitude=longitude, latitude=latitude))
 
     def create_terrain(self):
         """ assign ground height values to all the tiles """
