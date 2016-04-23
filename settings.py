@@ -42,7 +42,7 @@ time_step_size = 60*60*24  # (s)
 
 """ world size """
 world_circumference = 1.0 * earths_circumference  # (m)
-world_radius = world_circumference/(1*math.pi)  # (m)
+world_radius = world_circumference/(2*math.pi)  # (m)
 total_water_volume = 0*earths_water_volume  # (m^3)
 # how wide is the world (in cells)
 # this absolutely needs to be a power of 2!
