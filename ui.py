@@ -19,7 +19,7 @@ class UI():
         self.add_buttons()
         self.add_map()
         self.create_tiles()
-        self.paint_tiles()
+        #self.paint_tiles()
 
     def add_buttons(self):
         """ add buttons to the frame """
@@ -35,7 +35,7 @@ class UI():
     def add_map(self):
         """ add a blank map """
         self.map = Canvas(self.master, width=settings.map_width + 2*settings.map_border,
-                          height=settings.map_height + 2*settings.map_border, bg="yellow",
+                          height=settings.map_height + 2*settings.map_border, bg="black",
                           highlightthickness=0)
         self.map.pack(side=LEFT)
 
@@ -44,12 +44,16 @@ class UI():
         self.map.delete("all")
         self.tiles = []
         for cell in self.cells:
+            n_in_row = len([c for c in self.cells if c.latitude == cell.latitude])
+            x_start = (settings.map_width/2.0) - (n_in_row/2.0)*settings.cell_width
+            y_start = (cell.latitude/settings.cell_degree_width)*settings.cell_height
+
             self.tiles.append(self.map.create_rectangle(
-                cell.x*settings.cell_width + settings.map_border,
-                cell.y*settings.cell_height + settings.map_border,
-                (cell.x+1)*settings.cell_width + settings.map_border,
-                (cell.y+1)*settings.cell_height + settings.map_border,
-                fill="",
+                x_start + (cell.longitude/360.0)*n_in_row*settings.cell_width,
+                y_start,
+                x_start + (cell.longitude/360.0)*n_in_row*settings.cell_width + settings.cell_width,
+                y_start + settings.cell_height,
+                fill="yellow",
                 outline=""))
 
     def paint_tiles(self):
