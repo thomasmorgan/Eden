@@ -1,6 +1,6 @@
 from world import World
 from sun import Sun
-import settings
+from utility import log
 
 
 class Simulation():
@@ -11,7 +11,10 @@ class Simulation():
     """
 
     def __init__(self):
+
+        log("> Creating world")
         self.create_world()
+        log("> Creating sun")
         self.create_sun()
 
     def create_world(self):

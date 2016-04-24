@@ -1,6 +1,8 @@
 from Tkinter import *
 from simulation import Simulation
 from ui import UI
+import utility
+from utility import log
 
 
 class EdenApp():
@@ -15,12 +17,15 @@ class EdenApp():
         self.master = master
 
         # create the simulation object
+        utility.log_welcome()
+        log("> Creating simulation")
         self.simulation = Simulation()
         for x in range(5000):
             print x
             self.simulation.step()
 
         # create the app
+        log("> Creating UI")
         master.wm_title("Eden")
         self.frame = Frame(master)
         self.frame.pack()

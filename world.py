@@ -3,6 +3,7 @@ import numpy as np
 from cell import Cell
 import settings
 import math
+from utility import log
 
 
 class World():
@@ -17,9 +18,12 @@ class World():
 
     def __init__(self):
         """ build a world! """
+        log(">> Creating cells")
         self.create_cells()
+        log(">> Distorting terrain")
         self.create_terrain()
         self.normalize_terrain()
+        log(">> Creating oceans")
         self.create_oceans()
 
     def create_cells(self):
@@ -39,6 +43,7 @@ class World():
                     longitude = (360.0/float(cells))*x
                     self.cells.append(Cell(longitude=longitude, latitude=latitude))
 
+        log(">> Assigning cells neighbors")
         for a in range(len(self.cells)):
             cell = self.cells[a]
             for b in range(a+1, len(self.cells)):

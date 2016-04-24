@@ -108,3 +108,10 @@ tile_width = map_width/float(world_cell_circumference)
 draw_water = True
 # what mode are we drawing
 draw_mode = "terrain"
+
+""" ########################
+#####  MISC SETTINGS  ######
+######################## """
+
+verbose = True
+debug = False

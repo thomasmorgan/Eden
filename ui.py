@@ -1,5 +1,6 @@
 from Tkinter import *
 import settings
+from utility import log
 
 
 class UI():
@@ -18,7 +19,10 @@ class UI():
 
         self.add_buttons()
         self.add_map()
+
+        log(">> Creating tiles")
         self.create_tiles()
+        log(">> Painting tiles")
         self.paint_tiles()
 
     def add_buttons(self):
