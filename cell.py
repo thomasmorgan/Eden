@@ -15,6 +15,7 @@ class Cell():
         self.facing_sun = math.sin(math.radians(self.latitude))
         self.land = Land()
         self.water = Water()
+        self.neighbors = []
 
     def calculate_temperature(self):
         self.land.calculate_temperature()

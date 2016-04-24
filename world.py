@@ -39,12 +39,16 @@ class World():
                     longitude = (360.0/float(cells))*x
                     self.cells.append(Cell(longitude=longitude, latitude=latitude))
 
-        for cell in self.cells:
-            cell.neighbors = [c for c in self.cells if c != cell and (
-                math.acos(max(min(math.cos(math.radians(cell.latitude))*math.cos(math.radians(c.latitude)) +
-                                  math.sin(math.radians(cell.latitude))*math.sin(math.radians(c.latitude))*math.cos(abs(math.radians(cell.longitude) - math.radians(c.longitude))),
-                                  1.0),
-                              -1.0))) < 1.3*math.radians(degrees_per_cell)]
+        for a in range(len(self.cells)):
+            cell = self.cells[a]
+            for b in range(a+1, len(self.cells)):
+                c = self.cells[b]
+                if math.acos(max(min(math.cos(math.radians(cell.latitude))*math.cos(math.radians(c.latitude)) +
+                                 math.sin(math.radians(cell.latitude))*math.sin(math.radians(c.latitude))*math.cos(abs(math.radians(cell.longitude) - math.radians(c.longitude))),
+                                 1.0),
+                                 -1.0)) < 1.3*math.radians(degrees_per_cell):
+                    cell.neighbors.append(c)
+                    c.neighbors.append(cell)
 
     def create_terrain(self):
         """ assign ground height values to all the tiles """
