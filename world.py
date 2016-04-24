@@ -59,15 +59,19 @@ class World():
         """ assign ground height values to all the tiles """
         # see http://mathworld.wolfram.com/GreatCircle.html
         settings.n_distortions = 400
-        for _ in range(settings.n_distortions):
-            delta_height = 5000
-            delta_rate = random.random()*3 + 3
-            cell = random.choice(self.cells)
-            for c in self.cells:
-                dum1 = math.cos(math.radians(cell.latitude))*math.cos(math.radians(c.latitude))
-                dum2 = math.sin(math.radians(cell.latitude))*math.sin(math.radians(c.latitude))*math.cos(abs(math.radians(cell.longitude) - math.radians(c.longitude)))
-                distance = settings.world_radius*math.acos(max(min(dum1 + dum2, 1.0), -1.0))
-                c.land.height += delta_height / (distance/(100000*delta_rate) + 1)
+        longs = [random.choice(self.cells).longitude for _ in range(settings.n_distortions)]
+        lats = [random.choice(self.cells).latitude for _ in range(settings.n_distortions)]
+        heights = [5000]*len(range(settings.n_distortions))
+        rates = [random.random()*3 + 3 for _ in range(settings.n_distortions)]
+
+        for cell in self.cells:
+            distances = [settings.world_radius*math.acos(
+                max(min(
+                    math.cos(math.radians(cell.latitude))*math.cos(math.radians(lat)) +
+                    math.sin(math.radians(cell.latitude))*math.sin(math.radians(lat))*math.cos(abs(math.radians(cell.longitude) - math.radians(long))), 1.0), -1.0))
+                for lat, long in zip(lats, longs)]
+            hs = [h / (d/(100000*r) + 1) for h, d, r in zip(heights, distances, rates)]
+            cell.land.height += sum(hs)
 
     def create_oceans(self):
         """ fill the oceans """
