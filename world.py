@@ -75,18 +75,14 @@ class World():
 
     def create_oceans(self):
         """ fill the oceans """
-        heights = [t.land.height for t in self.cells]
-        self.water_level = min(heights)
-        water_change = 10.0
-
-        while water_change > 0.0001:
-            self.water_level += water_change
-            if self.water_volume() > settings.total_water_volume:
-                self.water_level -= water_change
-                water_change = water_change/2
-
-        for t in self.cells:
-            t.water_depth = max(self.water_level - t.land.height, 0)
+        water_mass_per_cell = settings.world_water_mass/len(self.cells)
+        water_vol_per_cell = water_mass_per_cell/settings.water_density
+        water_depth_per_cell = water_vol_per_cell/settings.cell_area
+        for cell in self.cells:
+            cell.water.mass = water_mass_per_cell
+            cell.water.volume = water_vol_per_cell
+            cell.water.depth = water_depth_per_cell
+            print [cell.water.mass, cell.water.volume, cell.water.depth]
 
     """ #####################
     ### EXECUTION METHODS ###

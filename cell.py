@@ -42,4 +42,6 @@ class Water():
     """ The water of a cell """
 
     def __init__(self):
+        self.mass = 0.0
+        self.depth = 0.0
         self.volume = 0.0

@@ -70,14 +70,14 @@ class UI():
         depicting and the draw_mode parameter.
         """
         if settings.draw_mode == "terrain":
-            if cell.water_depth == 0:
+            if cell.water.depth == 0:
                 col_min = [50, 20, 4]
                 col_max = [255, 255, 255]
                 p = (cell.land.height - settings.min_ground_height)/(settings.max_ground_height - settings.min_ground_height)
             else:
                 col_min = [153, 204, 255]
                 col_max = [0, 0, 40]
-                p = cell.water_depth/(settings.max_ground_height - settings.min_ground_height)
+                p = cell.water.depth/(settings.max_ground_height - settings.min_ground_height)
                 if p > 1:
                     p = 1
         elif settings.draw_mode == "heat":
