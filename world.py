@@ -25,8 +25,9 @@ class World():
     def create_cells(self):
         """ create a list of the tile objects that constitute the terrain of the world """
         self.cells = []
+        degrees_per_cell = 360.0/float(settings.world_cell_circumference)
         for y in range(settings.world_cell_circumference/2 + 1):
-            latitude = 360.0/float(settings.world_cell_circumference)*y
+            latitude = degrees_per_cell*y
 
             if latitude in [0, 180]:
                 self.cells.append(Cell(longitude=0.0, latitude=latitude))
@@ -37,6 +38,13 @@ class World():
                 for x in range(cells):
                     longitude = (360.0/float(cells))*x
                     self.cells.append(Cell(longitude=longitude, latitude=latitude))
+
+        for cell in self.cells:
+            cell.neighbors = [c for c in self.cells if c != cell and (
+                math.acos(max(min(math.cos(math.radians(cell.latitude))*math.cos(math.radians(c.latitude)) +
+                                  math.sin(math.radians(cell.latitude))*math.sin(math.radians(c.latitude))*math.cos(abs(math.radians(cell.longitude) - math.radians(c.longitude))),
+                                  1.0),
+                              -1.0))) < 1.3*math.radians(degrees_per_cell)]
 
     def create_terrain(self):
         """ assign ground height values to all the tiles """
