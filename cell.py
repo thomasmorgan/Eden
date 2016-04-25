@@ -20,6 +20,10 @@ class Cell():
     def calculate_temperature(self):
         self.land.calculate_temperature()
 
+    @property
+    def surface_height(self):
+        return self.land.height + self.water.depth
+
 
 class Land():
 
