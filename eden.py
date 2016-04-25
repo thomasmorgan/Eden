@@ -34,9 +34,11 @@ class EdenApp():
         self.ui = UI(self.master, self, self.frame)
 
     def step(self):
-        self.simulation.step()
-        self.ui.paint_tiles()
-        print "stepped!"
+        for _ in range(1000):
+            print _
+            self.simulation.step()
+            self.ui.paint_tiles()
+            self.master.update()
 
 root = Tk()
 eden = EdenApp(master=root)
