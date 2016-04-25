@@ -97,11 +97,13 @@ class World():
                 height_diffs = [max(0, cell.surface_height - n.surface_height) for n in cell.neighbors]
 
                 # calculate the size and speed of a wave
+                # because the tile sends water to all neighbors simultaneously
+                # the speed is artifically reduced to avoid excess sloshing
                 wave_height = [min(cell.water.depth, h/2) for h in height_diffs]
                 wave_area = [h*settings.cell_width for h in wave_height]
-                wave_speed = [min(max(pow(h, (1.0/3.0)), 1), 20) for h in wave_height]
+                wave_speed = [max(h/5, 1) for h in height_diffs]
 
-                # hork out how far the wave goes
+                # work out how far the wave goes
                 wave_distance = [s*settings.time_step_size for s in wave_speed]
 
                 # work out how much water moves
