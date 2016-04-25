@@ -58,7 +58,7 @@ class World():
     def create_terrain(self):
         """ assign ground height values to all the tiles """
         # see http://mathworld.wolfram.com/GreatCircle.html
-        settings.n_distortions = 400
+        settings.n_distortions = 1000
         longs = [random.choice(self.cells).longitude for _ in range(settings.n_distortions)]
         lats = [random.choice(self.cells).latitude for _ in range(settings.n_distortions)]
         heights = [5000]*len(range(settings.n_distortions))
