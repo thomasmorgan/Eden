@@ -29,6 +29,8 @@ class UI():
         """ add buttons to the frame """
         ground_button = Button(self.frame, text="TERRA", fg="red", command=self.draw_terrain)
         ground_button.pack(side=LEFT)
+        water_button = Button(self.frame, text="WATER", fg="red", command=self.toggle_water)
+        water_button.pack(side=LEFT)
         heat_button = Button(self.frame, text="HEAT", fg="red", command=self.draw_heat)
         heat_button.pack(side=LEFT)
         step_button = Button(self.frame, text="STEP", fg="red", command=self.app.step)
@@ -70,7 +72,7 @@ class UI():
         depicting and the draw_mode parameter.
         """
         if settings.draw_mode == "terrain":
-            if cell.water.depth == 0:
+            if cell.water.depth < 0.01 or settings.draw_water is False:
                 col_min = [50, 20, 4]
                 col_max = [255, 255, 255]
                 p = (cell.land.height - settings.min_ground_height)/(settings.max_ground_height - settings.min_ground_height)
@@ -100,4 +102,8 @@ class UI():
     def draw_heat(self):
         """ paint map by land temperature """
         settings.draw_mode = "heat"
+        self.paint_tiles()
+
+    def toggle_water(self):
+        settings.draw_water = not settings.draw_water
         self.paint_tiles()
