@@ -75,14 +75,14 @@ class World():
 
     def create_oceans(self):
         """ fill the oceans """
-        water_mass_per_cell = settings.world_water_mass/len(self.cells)
-        water_vol_per_cell = water_mass_per_cell/settings.water_density
-        water_depth_per_cell = water_vol_per_cell/settings.cell_area
-        for cell in self.cells:
-            cell.water.mass = water_mass_per_cell
-            cell.water.volume = water_vol_per_cell
-            cell.water.depth = water_depth_per_cell
-            print [cell.water.mass, cell.water.volume, cell.water.depth]
+        if settings.water_init_mode == "even":
+            water_mass_per_cell = settings.world_water_mass/len(self.cells)
+            water_vol_per_cell = water_mass_per_cell/settings.water_density
+            for cell in self.cells:
+                cell.water.change_volume(water_vol_per_cell)
+        elif settings.water_init_mode == "dump":
+            cell = random.choice(self.cells)
+            cell.water.change_volume(settings.world_water_mass/settings.water_density)
 
     def slosh_oceans(self):
         """ allow water to move according to gravity """
