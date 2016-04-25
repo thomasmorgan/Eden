@@ -84,6 +84,43 @@ class World():
             cell.water.depth = water_depth_per_cell
             print [cell.water.mass, cell.water.volume, cell.water.depth]
 
+    def slosh_oceans(self):
+        """ allow water to move according to gravity """
+        index = range(len(self.cells))
+        random.shuffle(index)
+        for i in index:
+            # for each cell
+            cell = self.cells[i]
+            if cell.water.depth > 0:
+                random.shuffle(cell.neighbors)
+                # get height difference with neighbors
+                height_diffs = [max(0, cell.surface_height - n.surface_height) for n in cell.neighbors]
+
+                # calculate the size and speed of a wave
+                wave_height = [min(cell.water.depth, h/2) for h in height_diffs]
+                wave_area = [h*settings.cell_width for h in wave_height]
+                wave_speed = [min(max(pow(h, (1.0/3.0)), 1), 20) for h in wave_height]
+
+                # hork out how far the wave goes
+                wave_distance = [s*settings.time_step_size for s in wave_speed]
+
+                # work out how much water moves
+                # it cannot be more than the max possible
+                max_vol_loosable = [w*settings.cell_area for w in wave_height]
+                vol_moved = [d*a for d, a in zip(wave_distance, wave_area)]
+                for j in range(len(cell.neighbors)):
+                    if vol_moved[j] > max_vol_loosable[j]:
+                        vol_moved[j] = max_vol_loosable[j]
+                total_vol = sum(vol_moved)
+                if total_vol > cell.water.volume:
+                    vol_moved = [v/(total_vol/cell.water.volume) for v in vol_moved]
+
+                # update the cells
+                cell.water.change_volume(-sum(vol_moved))
+                for j in range(len(cell.neighbors)):
+                    if vol_moved[j] != 0:
+                        cell.neighbors[j].water.change_volume(vol_moved[j])
+
     """ #####################
     ### EXECUTION METHODS ###
     ######################"""
