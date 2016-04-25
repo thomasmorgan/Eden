@@ -49,3 +49,8 @@ class Water():
         self.mass = 0.0
         self.depth = 0.0
         self.volume = 0.0
+
+    def change_volume(self, amount):
+        self.volume += amount
+        self.depth = self.volume/settings.cell_area
+        self.mass = self.volume*settings.water_density
