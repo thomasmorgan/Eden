@@ -54,14 +54,14 @@ class EdenApp():
 
         self.master.bind('<Left>', leftKey)
         self.master.bind('<Right>', rightKey)
+        self.master.bind('<space>', spaceKey)
 
     def step(self):
         """Advance one step in time."""
-        for _ in range(1000):
-            print _
-            self.simulation.step()
-            self.ui.paint_tiles()
-            self.master.update()
+        self.simulation.step()
+        self.ui.paint_tiles()
+        self.master.update()
+
     def rotate_map(self, degrees):
         """Spin the map."""
         for c in self.simulation.world.cells:
@@ -75,6 +75,13 @@ class EdenApp():
             self.simulation.world.cells,
             key=operator.attrgetter("latitude", "longitude"))
         self.ui.paint_tiles()
+
+    def toggle_running(self):
+        """Start/stop the simulation."""
+        self.running = not self.running
+        while self.running:
+            self.step()
+
 
 root = Tk()
 eden = EdenApp(master=root)
