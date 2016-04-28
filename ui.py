@@ -78,8 +78,8 @@ class UI():
                 p = (cell.land.height - settings.min_ground_height)/(settings.max_ground_height - settings.min_ground_height)
             else:
                 col_min = [153, 204, 255]
-                col_max = [0, 0, 40]
-                p = cell.water.depth/(settings.max_ground_height - settings.min_ground_height)
+                col_max = [20, 20, 80]
+                p = cell.water.depth/6000.0
                 if p > 1:
                     p = 1
         elif settings.draw_mode == "heat":
