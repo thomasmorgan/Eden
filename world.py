@@ -199,9 +199,7 @@ class World():
         the rate of conduction depends only on the starting temperature
         difference.
         """
-        time = settings.time_step_size  # (s)
-        area = (settings.cell_width*settings.land_depth)  # (m^2)
-        thermal_conductivity = settings.land_thermal_conductivity
+        pass
 
     def calculate_temperature(self):
         """Calculate temperature given thermal energy."""
