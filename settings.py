@@ -18,8 +18,8 @@ world_radius = world_circumference/(2*math.pi)  # (m)
 world_mass = earths_mass
 
 """ oceans """
-world_water_mass = earths_water_mass*0.8
-water_init_mode = "dump"
+world_water_mass = earths_water_mass*1.0
+water_init_mode = "even"
 
 """ cells """
 world_cell_circumference = 80  # (cells)
