@@ -1,7 +1,6 @@
 """The sun."""
 
 import settings
-import math
 
 
 class Sun():

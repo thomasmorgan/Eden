@@ -1,6 +1,6 @@
 """Configurable game settings."""
 
-from true_values import *
+import true_values as tv
 import math
 
 """ ########################
@@ -15,12 +15,12 @@ time_step_size = 60*60*24  # (s)
 ######################## """
 
 """ world size """
-world_circumference = 1.0 * earths_circumference  # (m)
+world_circumference = 1.0 * tv.earths_circumference  # (m)
 world_radius = world_circumference/(2*math.pi)  # (m)
-world_mass = earths_mass
+world_mass = tv.earths_mass
 
 """ oceans """
-world_water_mass = earths_water_mass*1.0
+world_water_mass = tv.earths_water_mass*1.0
 water_init_mode = "even"
 
 """ cells """
@@ -35,20 +35,21 @@ max_ground_height = 10000
 
 
 """ land properties """
-land_density = earths_crust_density  # (kg/m^3)
+land_density = tv.earths_crust_density  # (kg/m^3)
 land_depth = 5  # (m)
-land_specific_heat_capacity = earths_crust_specific_heat_capacity  # (J/K kg)
-land_thermal_conductivity = earths_crust_thermal_conductivity
-land_albedo = soil_albedo
-land_emissivity = soil_emissivity
+land_specific_heat_capacity = tv.earths_crust_specific_heat_capacity
+# (J/K kg)
+land_thermal_conductivity = tv.earths_crust_thermal_conductivity
+land_albedo = tv.soil_albedo
+land_emissivity = tv.soil_emissivity
 
 """ world energy budgets """
 initial_land_temperature = 283  # (K)
-world_power = earths_energy_production  # (W)
+world_power = tv.earths_energy_production  # (W)
 
 """ sun properties """
-sun_power = suns_power  # (W)
-sun_distance = earth_sun_distance*1  # (m)
+sun_power = tv.suns_power  # (W)
+sun_distance = tv.earth_sun_distance*1  # (m)
 
 
 """ ########################

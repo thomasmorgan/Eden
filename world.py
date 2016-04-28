@@ -1,7 +1,6 @@
 """The world class."""
 
 import random
-import numpy as np
 from cell import Cell
 import settings
 import math
@@ -98,13 +97,13 @@ class World():
         """Create water."""
         if settings.water_init_mode == "even":
             water_mass_per_cell = settings.world_water_mass/len(self.cells)
-            water_vol_per_cell = water_mass_per_cell/settings.water_density
+            water_vol_per_cell = water_mass_per_cell/settings.tv.water_density
             for cell in self.cells:
                 cell.water.change_volume(water_vol_per_cell)
         elif settings.water_init_mode == "dump":
             cell = random.choice(self.cells)
             cell.water.change_volume(settings.world_water_mass /
-                                     settings.water_density)
+                                     settings.tv.water_density)
 
     def slosh_oceans(self):
         """Move water between cells according to gravity."""
@@ -162,7 +161,7 @@ class World():
         """
         time = settings.time_step_size
         area = settings.cell_area
-        Z = (settings.stefan_boltzmann_constant *
+        Z = (settings.tv.stefan_boltzmann_constant *
              area *
              settings.land_emissivity /
              (pow(self.cells[0].land.mass, 4) *

@@ -62,4 +62,4 @@ class Water():
         """Change volume by specified amount."""
         self.volume += amount
         self.depth = self.volume/settings.cell_area
-        self.mass = self.volume*settings.water_density
+        self.mass = self.volume*settings.tv.water_density

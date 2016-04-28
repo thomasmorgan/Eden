@@ -1,6 +1,6 @@
 """The user interface."""
 
-from Tkinter import *
+from Tkinter import Button, LEFT, Canvas
 import settings
 from utility import log
 import operator

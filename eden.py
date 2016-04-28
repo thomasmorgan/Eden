@@ -1,6 +1,6 @@
 """The Eden app."""
 
-from Tkinter import *
+from Tkinter import Frame, Tk
 from simulation import Simulation
 from ui import UI
 import utility
