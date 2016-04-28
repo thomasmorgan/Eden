@@ -223,3 +223,25 @@ class World():
                      settings.max_ground_height])
         for t in self.cells:
             t.land.height = t.land.height/scale
+
+    def raise_cell(self, cell_id, height):
+        """Raise a cells land height."""
+        cell = self.cells[cell_id]
+
+        long = cell.longitude
+        lat = cell.latitude
+        rate = random.random()*3 + 3
+
+        for cell in self.cells:
+            distance = settings.world_radius*math.acos(
+                max(min(
+                    math.cos(math.radians(cell.latitude)) *
+                    math.cos(math.radians(lat)) +
+                    math.sin(math.radians(cell.latitude)) *
+                    math.sin(math.radians(lat)) *
+                    math.cos(abs(math.radians(cell.longitude) -
+                                 math.radians(long))),
+                    1.0), -1.0))
+            hs = height / (distance/(100000*rate) + 1)
+            cell.land.height += hs
+        self.normalize_terrain()

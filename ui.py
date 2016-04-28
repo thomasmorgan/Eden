@@ -73,6 +73,21 @@ class UI():
                 y_start + settings.tile_height,
                 fill="yellow",
                 outline=""))
+        for x in range(len(self.tiles)):
+            self.map.tag_bind(self.tiles[x], "<ButtonPress-1>",
+                              lambda event, arg=x: self.left_click_tile(arg))
+            self.map.tag_bind(self.tiles[x], "<ButtonPress-2>",
+                              lambda event, arg=x: self.right_click_tile(arg))
+
+    def left_click_tile(self, x):
+        """Tell world to raise terrain at cell x."""
+        self.world.raise_cell(x, 1000)
+        self.paint_tiles()
+
+    def right_click_tile(self, x):
+        """Tell world to raise terrain at cell x."""
+        self.world.raise_cell(x, -1000)
+        self.paint_tiles()
 
     def paint_tiles(self):
         """Color the tiles."""
