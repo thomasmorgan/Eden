@@ -3,6 +3,7 @@
 from Tkinter import *
 import settings
 from utility import log
+import operator
 
 
 class UI():
@@ -17,14 +18,40 @@ class UI():
         self.app = app
         self.frame = frame
         self.world = self.app.simulation.world
-        self.cells = self.world.cells
 
         self.add_buttons()
         self.add_map()
 
+        self.create_key_bindings()
+
         log(">> Creating tiles")
         self.create_tiles()
         log(">> Painting tiles")
+        self.paint_tiles()
+
+    def create_key_bindings(self):
+        """Set up key bindings."""
+        def leftKey(event):
+            self.rotate_map(-10.0)
+
+        def rightKey(event):
+            self.rotate_map(10.0)
+
+        self.master.bind('<Left>', leftKey)
+        self.master.bind('<Right>', rightKey)
+
+    def rotate_map(self, degrees):
+        """Spin the map."""
+        for c in self.world.cells:
+            c.longitude += degrees
+            if c.longitude < 0:
+                c.longitude += 360.0
+            elif c.longitude >= 360.0:
+                c.longitude -= 360.0
+
+        self.world.cells = sorted(
+            self.world.cells,
+            key=operator.attrgetter("latitude", "longitude"))
         self.paint_tiles()
 
     def add_buttons(self):
@@ -57,8 +84,8 @@ class UI():
         """Create blank tiles."""
         self.map.delete("all")
         self.tiles = []
-        for cell in self.cells:
-            n_in_row = len([c for c in self.cells
+        for cell in self.world.cells:
+            n_in_row = len([c for c in self.world.cells
                             if c.latitude == cell.latitude])
             x_start = ((settings.map_width/2.0) -
                        (n_in_row/2.0)*settings.tile_width)
@@ -79,7 +106,7 @@ class UI():
         """Color the tiles."""
         for x in range(len(self.tiles)):
             self.map.itemconfigure(self.tiles[x],
-                                   fill=self.cell_color(self.cells[x]))
+                                   fill=self.cell_color(self.world.cells[x]))
 
     def cell_color(self, cell):
         """Work out what color a tile should be.
