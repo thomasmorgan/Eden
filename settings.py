@@ -1,3 +1,5 @@
+"""Configurable game settings."""
+
 from true_values import *
 import math
 

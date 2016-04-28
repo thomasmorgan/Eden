@@ -1,15 +1,18 @@
+"""Cells and their constituent classes."""
+
 import settings
 import math
 
 
 class Cell():
+    """The repeated unit that makes up a world.
 
-    """ The cell class is a repeated unit that collectively make a world.
     Cells have land and water and can be though of as a single column on
     the world's surface.
     """
 
     def __init__(self, latitude, longitude):
+        """Make a cell."""
         self.latitude = latitude
         self.longitude = longitude
         self.facing_sun = math.sin(math.radians(self.latitude))
@@ -18,39 +21,45 @@ class Cell():
         self.neighbors = []
 
     def calculate_temperature(self):
+        """Update temperature values."""
         self.land.calculate_temperature()
 
     @property
     def surface_height(self):
+        """Height of the surface (land or sea)."""
         return self.land.height + self.water.depth
 
 
 class Land():
-
-    """ The terrain of a cell """
+    """The terrain of a cell."""
 
     def __init__(self):
-        self.mass = settings.cell_area*settings.land_depth*settings.land_density
-        self.thermal_energy = settings.initial_land_temperature * self.mass * settings.land_specific_heat_capacity
+        """Make some land."""
+        self.mass = (settings.cell_area * settings.land_depth *
+                     settings.land_density)
+        self.thermal_energy = (settings.initial_land_temperature * self.mass *
+                               settings.land_specific_heat_capacity)
         self.height = 0.0
         self.calculate_temperature()
 
     def calculate_temperature(self):
-        """ calculate the temperature of the cell given its thermal energy """
+        """Calculate the temperature of the cell given its thermal energy."""
         # see: https://en.wikipedia.org/wiki/Heat_capacity
-        self.temperature = self.thermal_energy/(self.mass*settings.land_specific_heat_capacity)
+        self.temperature = (self.thermal_energy /
+                            (self.mass*settings.land_specific_heat_capacity))
 
 
 class Water():
-
-    """ The water of a cell """
+    """The water of a cell."""
 
     def __init__(self):
+        """Create some water."""
         self.mass = 0.0
         self.depth = 0.0
         self.volume = 0.0
 
     def change_volume(self, amount):
+        """Change volume by specified amount."""
         self.volume += amount
         self.depth = self.volume/settings.cell_area
         self.mass = self.volume*settings.water_density
