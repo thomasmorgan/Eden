@@ -31,38 +31,11 @@ class Cell():
 
     def gain_solar_energy(self, energy):
         """Absorb energy from above."""
-        if self.water.volume > 0:
-            # water reflects some
-            energy_reflected_by_water =\
-                energy*settings.water_albedo(self.facing_sun)
-            energy -= energy_reflected_by_water
-
-            # water absorbs some
-            energy_absorbed_by_water =\
-                (1 - math.exp(-settings.water_absorbicity *
-                              self.water.depth))*energy
-            self.water.thermal_energy += energy_absorbed_by_water
-            energy -= energy_absorbed_by_water
-
-        # land reflects some
-        energy_reflected_by_land = energy * settings.land_albedo
-        energy_lost_to_space = energy_reflected_by_land
-
-        # land absorbs some
-        energy_absorbed_by_land =\
-            energy - energy_reflected_by_land
-        self.land.thermal_energy += energy_absorbed_by_land
-
-        if self.water.volume > 0:
-            # water absorbs some that was reflected by land
-            energy_absorbed_by_water2 =\
-                (1 - math.exp(-settings.water_absorbicity *
-                              self.water.depth))*energy_reflected_by_land
-            self.water.thermal_energy += energy_absorbed_by_water2
-            energy_lost_to_space = energy_reflected_by_land -\
-                energy_absorbed_by_water2
-
-        self.calculate_temperature()
+        energy = self.water.reflect_solar_energy(energy)[1]
+        energy = self.water.absorb_solar_energy(energy)[1]
+        energies = self.land.reflect_solar_energy(energy)
+        self.water.absorb_solar_energy(energies[0])
+        self.land.absorb_energy(energies[1])
 
     @property
     def surface_height(self):
@@ -88,6 +61,7 @@ class Material(object):
         self.thermal_energy = 0.0
         self.specific_heat_capacity = None
         self.density = None
+        self.albedo = None
 
     @property
     def temperature(self):
@@ -114,6 +88,19 @@ class Material(object):
         energy = temperature * mass * self.specific_heat_capacity
         self.thermal_energy += energy
 
+    def reflect_solar_energy(self, energy):
+        """Reflect incident solar energy."""
+        if self.mass > 0:
+            reflected_energy = energy * self.albedo
+        else:
+            reflected_energy = 0.0
+        remaining_energy = energy - reflected_energy
+        return [reflected_energy, remaining_energy]
+
+    def absorb_energy(self, energy):
+        """Asborb energy."""
+        self.thermal_energy += energy
+
 
 class Land(Material):
     """The terrain of a cell."""
@@ -124,6 +111,7 @@ class Land(Material):
         self.specific_heat_capacity = settings.land_specific_heat_capacity
         self.density = settings.land_density
         self.height = 0.0
+        self.albedo = settings.land_albedo
 
 
 class Water(Material):
@@ -134,3 +122,14 @@ class Water(Material):
         super(Water, self).__init__(cell)
         self.specific_heat_capacity = settings.water_specific_heat_capacity
         self.density = settings.water_density
+        self.albedo = settings.water_albedo(self.cell.facing_sun)
+        self.absorbicity = settings.water_absorbicity
+
+    def absorb_solar_energy(self, energy):
+        """Absorb sunlight."""
+        energy_absorbed =\
+            (1 - math.exp(-self.absorbicity *
+                          self.depth))*energy
+        self.thermal_energy += energy_absorbed
+        energy_remaining = energy - energy_absorbed
+        return [energy_absorbed, energy_remaining]
