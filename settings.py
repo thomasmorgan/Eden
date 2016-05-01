@@ -37,20 +37,37 @@ max_ground_height = 10000
 """ land properties """
 land_density = tv.earths_crust_density  # (kg/m^3)
 land_depth = 5  # (m)
-land_specific_heat_capacity = tv.earths_crust_specific_heat_capacity
-# (J/K kg)
+
 land_thermal_conductivity = tv.earths_crust_thermal_conductivity
-land_albedo = tv.soil_albedo
-land_emissivity = tv.soil_emissivity
 
 """ world energy budgets """
 initial_land_temperature = 283  # (K)
+initial_water_temperature = 283
 world_power = tv.earths_energy_production  # (W)
 
 """ sun properties """
 sun_power = tv.suns_power  # (W)
 sun_distance = tv.earth_sun_distance*1  # (m)
 
+""" albedos """
+
+
+def water_albedo(facing):
+    """Calcuate albedo of water given angle of incidence."""
+    return 1.0*tv.water_albedo(facing)
+land_albedo = tv.soil_albedo
+
+"""heat capacities"""
+water_specific_heat_capacity = 1.0*tv.water_specific_heat_capacity
+land_specific_heat_capacity = tv.earths_crust_specific_heat_capacity
+# (J/K kg)
+
+""" absorbicities """
+water_absorbicity = 1.0 * tv.water_absorbicity
+
+""" emmisivities """
+land_emissivity = tv.soil_emissivity
+water_emissivity = tv.water_emissivity
 
 """ ########################
 ######  MAP SETTINGS  ######

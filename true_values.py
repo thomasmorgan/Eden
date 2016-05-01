@@ -31,6 +31,8 @@ earth_sun_distance = 149.6*pow(10, 9)
 """ heat capacities """
 earths_crust_specific_heat_capacity = 800
 # (J/K kg) http://www.engineeringtoolbox.com/specific-heat-capacity-d_391.html
+water_specific_heat_capacity = 4186
+# http://hyperphysics.phy-astr.gsu.edu/hbase/thermo/spht.html
 
 """ thermal conductivities """
 earths_crust_thermal_conductivity = 1.5
@@ -45,6 +47,19 @@ water_density = 1000
 
 """ albedos """
 soil_albedo = 0.17  # https://en.wikipedia.org/wiki/Albedo
+max_water_albedo = 0.95
+min_water_albedo = 0.05
+
+""" absorbicities """
+water_absorbicity = 0.03
+
+
+def water_albedo(facing):
+    """Value of water albedo depending on facing value."""
+    return min_water_albedo + \
+        (1 - facing)*(max_water_albedo - min_water_albedo)
+
 
 """ emmisivities """
 soil_emissivity = 0.92  # http://www.thermoworks.com/emissivity_table.html
+water_emissivity = 0.95
