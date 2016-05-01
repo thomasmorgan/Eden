@@ -20,6 +20,15 @@ class Cell():
         self.water = Water()
         self.neighbors = []
 
+    def add_material(self, material, mass, temperature):
+        """Add some material to a cell."""
+        if material == "land":
+            self.land.change_mass(mass, temperature)
+        elif material == "water":
+            self.water.change_mass(mass, temperature)
+        else:
+            raise ValueError("Unrecognised material: {}".format(material))
+
     def calculate_temperature(self):
         """Update temperature values."""
         self.land.calculate_temperature()
@@ -124,3 +133,4 @@ class Water(Material):
         """Create some water."""
         super(Water, self).__init__()
         self.specific_heat_capacity = settings.water_specific_heat_capacity
+        self.density = settings.water_density
