@@ -25,6 +25,41 @@ class Cell():
         self.land.calculate_temperature()
         self.water.calculate_temperature
 
+    def gain_solar_energy(self, energy):
+        """Absorb energy from above."""
+        if self.water.volume > 0:
+            # water reflects some
+            energy_reflected_by_water =\
+                energy*settings.water_albedo(self.facing_sun)
+            energy -= energy_reflected_by_water
+
+            # water absorbs some
+            energy_absorbed_by_water =\
+                (1 - math.exp(-settings.water_absorbicity *
+                              self.water.depth))*energy
+            self.water.thermal_energy += energy_absorbed_by_water
+            energy -= energy_absorbed_by_water
+
+        # land reflects some
+        energy_reflected_by_land = energy * settings.land_albedo
+        energy_lost_to_space = energy_reflected_by_land
+
+        # land absorbs some
+        energy_absorbed_by_land =\
+            energy - energy_reflected_by_land
+        self.land.thermal_energy += energy_absorbed_by_land
+
+        if self.water.volume > 0:
+            # water absorbs some that was reflected by land
+            energy_absorbed_by_water2 =\
+                (1 - math.exp(-settings.water_absorbicity *
+                              self.water.depth))*energy_reflected_by_land
+            self.water.thermal_energy += energy_absorbed_by_water2
+            energy_lost_to_space = energy_reflected_by_land -\
+                energy_absorbed_by_water2
+
+        self.calculate_temperature()
+
     @property
     def surface_height(self):
         """Height of the surface (land or sea)."""

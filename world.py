@@ -188,7 +188,7 @@ class World():
         max_E = max_W*time*(1-settings.land_albedo)
 
         for c in self.cells:
-            c.land.thermal_energy += max_E*c.facing_sun
+            c.gain_solar_energy(max_E*c.facing_sun)
 
     def absorb_energy_from_core(self):
         """Gain thermal energy (kJ) from within the earth."""
