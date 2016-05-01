@@ -115,7 +115,7 @@ class UI():
         elif settings.draw_mode == "heat":
             col_min = [82, 219, 255]
             col_max = [255, 66, 0]
-            p = max(min((cell.land.temperature-200)/200, 1), 0)
+            p = max(min((cell.surface_temperature-200)/200, 1), 0)
         elif settings.draw_mode == "wind":
             col_min = [0, 0, 0]
             col_max = [255, 255, 255]
