@@ -40,6 +40,7 @@ class EdenApp():
         self.create_key_bindings()
 
         self.running = False
+        self.steps = 0
 
     def create_key_bindings(self):
         """Set up key bindings."""
@@ -61,6 +62,8 @@ class EdenApp():
         self.simulation.step()
         self.ui.paint_tiles()
         self.master.update()
+        self.steps += 1
+        print self.steps
 
     def rotate_map(self, degrees):
         """Spin the map."""
