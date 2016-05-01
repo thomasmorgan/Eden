@@ -162,15 +162,24 @@ class World():
         """
         time = settings.time_step_size
         area = settings.cell_area
-        Z = (settings.tv.stefan_boltzmann_constant *
-             area *
-             settings.land_emissivity /
-             (pow(self.cells[0].land.mass, 4) *
-              pow(settings.land_specific_heat_capacity, 4)))
-        Z = 3*Z*time
+
+        top = 3 * (settings.tv.stefan_boltzmann_constant *
+                   area * settings.land_emissivity * time)
+        bottom = (pow(self.cells[0].land.mass, 4) *
+                  pow(settings.land_specific_heat_capacity, 4))
+        Z = top/bottom
         for c in self.cells:
             c.land.thermal_energy = pow(Z + pow(c.land.thermal_energy, -3),
                                         -1.0/3.0)
+
+        top = 3 * (settings.tv.stefan_boltzmann_constant *
+                   area * settings.water_emissivity * time)
+        kl = pow(settings.water_specific_heat_capacity, 4)
+        for c in self.cells:
+            bottom = pow(c.water.mass, 4) * kl
+            if bottom > 0:
+                f = pow(c.water.thermal_energy, -3)
+                c.water.thermal_energy = pow(top/bottom + f, -1.0 / 3.0)
 
     def absorb_energy_from_sun(self, sun):
         """Gain thermal energy (kJ) from the sun."""
