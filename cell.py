@@ -74,51 +74,53 @@ class Cell():
             return self.land.temperature
 
 
-class Land():
+class Material(object):
+    """An abstract class for physical materials."""
+
+    def __init__(self):
+        """Create some material."""
+        self.mass = 0.0
+        self.thermal_energy = 0.0
+        self.specific_heat_capacity = None
+        self.density = None
+
+    @property
+    def temperature(self):
+        """The temperature of the material."""
+        return self.thermal_energy / (self.mass * self.specific_heat_capacity)
+
+    @property
+    def volume(self):
+        """The volume of the material."""
+        return self.mass / self.density
+
+    @property
+    def depth(self):
+        """The depth of the material."""
+        return self.volume / settings.cell_area
+
+    def change_mass(self, mass, temperature):
+        """Change the mass of the material."""
+        self.mass += mass
+        energy = temperature * mass * self.specific_heat_capacity
+        self.thermal_energy += energy
+
+
+class Land(Material):
     """The terrain of a cell."""
 
     def __init__(self):
         """Make some land."""
-        self.mass = (settings.cell_area * settings.land_depth *
-                     settings.land_density)
-        self.thermal_energy = (settings.initial_land_temperature * self.mass *
-                               settings.land_specific_heat_capacity)
+        super(Land, self).__init__()
+        self.specific_heat_capacity = settings.land_specific_heat_capacity
+        self.density = settings.land_density
         self.height = 0.0
-        self.calculate_temperature()
-
-    def calculate_temperature(self):
-        """Calculate the temperature of the cell given its thermal energy."""
-        # see: https://en.wikipedia.org/wiki/Heat_capacity
-        self.temperature = (self.thermal_energy /
-                            (self.mass*settings.land_specific_heat_capacity))
 
 
-class Water():
+class Water(Material):
     """The water of a cell."""
 
     def __init__(self):
         """Create some water."""
-        self.mass = 0.0
-        self.depth = 0.0
-        self.volume = 0.0
-        self.thermal_energy = 0.0
-        self.temperature = 0.0
-
-    def calculate_temperature(self):
-        """Calculate the temperature of the cell given its thermal energy."""
-        # see: https://en.wikipedia.org/wiki/Heat_capacity
-        if self.depth > 0:
-            self.temperature = (self.thermal_energy /
-                                (self.mass *
-                                 settings.water_specific_heat_capacity))
-        else:
-            self.temperature = 0.0
-
-    def change_volume(self, volume, temperature):
-        """Change volume by specified amount."""
-        self.volume += volume
-        self.depth = self.volume/settings.cell_area
-        self.mass = self.volume*settings.tv.water_density
-        energy = temperature*volume*settings.tv.water_density*settings.water_specific_heat_capacity
-        self.thermal_energy += energy
-        self.calculate_temperature()
+        super(Water, self).__init__()
+        self.specific_heat_capacity = settings.water_specific_heat_capacity
