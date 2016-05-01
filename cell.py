@@ -79,8 +79,11 @@ class Water():
         else:
             self.temperature = 0.0
 
-    def change_volume(self, amount):
+    def change_volume(self, volume, temperature):
         """Change volume by specified amount."""
-        self.volume += amount
+        self.volume += volume
         self.depth = self.volume/settings.cell_area
         self.mass = self.volume*settings.tv.water_density
+        energy = temperature*volume*settings.tv.water_density*settings.water_specific_heat_capacity
+        self.thermal_energy += energy
+        self.calculate_temperature()
