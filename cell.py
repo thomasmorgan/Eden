@@ -23,6 +23,7 @@ class Cell():
     def calculate_temperature(self):
         """Update temperature values."""
         self.land.calculate_temperature()
+        self.water.calculate_temperature
 
     @property
     def surface_height(self):
