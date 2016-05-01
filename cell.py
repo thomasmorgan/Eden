@@ -16,8 +16,8 @@ class Cell():
         self.latitude = latitude
         self.longitude = longitude
         self.facing_sun = math.sin(math.radians(self.latitude))
-        self.land = Land()
-        self.water = Water()
+        self.land = Land(self)
+        self.water = Water(self)
         self.neighbors = []
 
     def add_material(self, material, mass, temperature):
@@ -81,8 +81,9 @@ class Cell():
 class Material(object):
     """An abstract class for physical materials."""
 
-    def __init__(self):
+    def __init__(self, cell):
         """Create some material."""
+        self.cell = cell
         self.mass = 0.0
         self.thermal_energy = 0.0
         self.specific_heat_capacity = None
@@ -117,9 +118,9 @@ class Material(object):
 class Land(Material):
     """The terrain of a cell."""
 
-    def __init__(self):
+    def __init__(self, cell):
         """Make some land."""
-        super(Land, self).__init__()
+        super(Land, self).__init__(cell)
         self.specific_heat_capacity = settings.land_specific_heat_capacity
         self.density = settings.land_density
         self.height = 0.0
@@ -128,8 +129,8 @@ class Land(Material):
 class Water(Material):
     """The water of a cell."""
 
-    def __init__(self):
+    def __init__(self, cell):
         """Create some water."""
-        super(Water, self).__init__()
+        super(Water, self).__init__(cell)
         self.specific_heat_capacity = settings.water_specific_heat_capacity
         self.density = settings.water_density
