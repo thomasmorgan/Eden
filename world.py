@@ -23,6 +23,7 @@ class World():
         log(">> Creating cells")
         self.create_cells()
         log(">> Distorting terrain")
+        self.create_land()
         self.create_terrain()
         self.normalize_terrain()
         log(">> Creating oceans")
@@ -67,6 +68,15 @@ class World():
                     cell.neighbors.append(c)
                     c.neighbors.append(cell)
 
+    def create_land(self):
+        """Add land to each cell."""
+        vol_per_cell = settings.cell_area * settings.land_depth
+        mass_per_cell = vol_per_cell*settings.land_density
+        for c in self.cells:
+            c.add_material("land",
+                           mass_per_cell,
+                           settings.initial_land_temperature)
+
     def create_terrain(self):
         """Assign height values to the land."""
         # see http://mathworld.wolfram.com/GreatCircle.html
@@ -97,14 +107,15 @@ class World():
         """Create water."""
         if settings.water_init_mode == "even":
             water_mass_per_cell = settings.world_water_mass/len(self.cells)
-            water_vol_per_cell = water_mass_per_cell/settings.tv.water_density
             for cell in self.cells:
-                cell.water.change_volume(water_vol_per_cell, settings.initial_water_temperature)
+                cell.add_material("water",
+                                  water_mass_per_cell,
+                                  settings.initial_water_temperature)
         elif settings.water_init_mode == "dump":
             cell = random.choice(self.cells)
-            cell.water.change_volume(settings.world_water_mass /
-                                     settings.tv.water_density,
-                                     settings.initial_water_temperature)
+            cell.add_material("water",
+                              settings.world_water_mass,
+                              settings.initial_water_temperature)
 
     def slosh_oceans(self):
         """Move water between cells according to gravity."""
