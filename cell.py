@@ -29,6 +29,14 @@ class Cell():
         """Height of the surface (land or sea)."""
         return self.land.height + self.water.depth
 
+    @property
+    def surface_temperature(self):
+        """Temperature of surface (land or sea)."""
+        if self.water.depth > 0:
+            return self.water.temperature
+        else:
+            return self.land.temperature
+
 
 class Land():
     """The terrain of a cell."""
