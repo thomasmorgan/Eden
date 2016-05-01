@@ -65,6 +65,18 @@ class Water():
         self.mass = 0.0
         self.depth = 0.0
         self.volume = 0.0
+        self.thermal_energy = 0.0
+        self.temperature = 0.0
+
+    def calculate_temperature(self):
+        """Calculate the temperature of the cell given its thermal energy."""
+        # see: https://en.wikipedia.org/wiki/Heat_capacity
+        if self.depth > 0:
+            self.temperature = (self.thermal_energy /
+                                (self.mass *
+                                 settings.water_specific_heat_capacity))
+        else:
+            self.temperature = 0.0
 
     def change_volume(self, amount):
         """Change volume by specified amount."""
