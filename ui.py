@@ -101,7 +101,7 @@ class UI():
         The color depends on the cell and the draw_mode parameter.
         """
         if settings.draw_mode == "terrain":
-            if cell.water.depth < 0.01 or settings.draw_water is False:
+            if cell.water.depth == 0.0 or settings.draw_water is False:
                 col_min = [50, 20, 4]
                 col_max = [255, 255, 255]
                 p = ((cell.land.height - settings.min_ground_height) /
