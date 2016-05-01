@@ -35,7 +35,6 @@ max_ground_height = 10000
 
 
 """ land properties """
-land_density = tv.earths_crust_density  # (kg/m^3)
 land_depth = 5  # (m)
 
 land_thermal_conductivity = tv.earths_crust_thermal_conductivity
@@ -44,6 +43,10 @@ land_thermal_conductivity = tv.earths_crust_thermal_conductivity
 initial_land_temperature = 283  # (K)
 initial_water_temperature = 283
 world_power = tv.earths_energy_production  # (W)
+
+""" densities """
+land_density = tv.earths_crust_density
+water_density = tv.water_density
 
 """ sun properties """
 sun_power = tv.suns_power  # (W)
