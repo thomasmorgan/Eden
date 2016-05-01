@@ -205,7 +205,7 @@ class World():
     def calculate_temperature(self):
         """Calculate temperature given thermal energy."""
         for c in self.cells:
-            c.land.calculate_temperature()
+            c.calculate_temperature()
 
     """ #####################
     #### SUPPORT METHODS ####
