@@ -222,11 +222,6 @@ class World():
         """
         pass
 
-    def calculate_temperature(self):
-        """Calculate temperature given thermal energy."""
-        for c in self.cells:
-            c.calculate_temperature()
-
     """ #####################
     #### SUPPORT METHODS ####
     ######################"""

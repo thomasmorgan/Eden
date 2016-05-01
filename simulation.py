@@ -33,5 +33,4 @@ class Simulation():
         self.world.absorb_energy_from_sun(self.sun)
         self.world.absorb_energy_from_core()
         self.world.radiate_energy()
-        self.world.calculate_temperature()
         self.world.slosh_oceans()

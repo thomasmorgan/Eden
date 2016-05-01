@@ -29,11 +29,6 @@ class Cell():
         else:
             raise ValueError("Unrecognised material: {}".format(material))
 
-    def calculate_temperature(self):
-        """Update temperature values."""
-        self.land.calculate_temperature()
-        self.water.calculate_temperature
-
     def gain_solar_energy(self, energy):
         """Absorb energy from above."""
         if self.water.volume > 0:
