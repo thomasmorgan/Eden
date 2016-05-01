@@ -91,7 +91,11 @@ class Material(object):
     @property
     def temperature(self):
         """The temperature of the material."""
-        return self.thermal_energy / (self.mass * self.specific_heat_capacity)
+        if self.mass > 0:
+            return (self.thermal_energy /
+                    (self.mass * self.specific_heat_capacity))
+        else:
+            return 0.0
 
     @property
     def volume(self):
