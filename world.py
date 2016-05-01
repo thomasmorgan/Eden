@@ -99,11 +99,12 @@ class World():
             water_mass_per_cell = settings.world_water_mass/len(self.cells)
             water_vol_per_cell = water_mass_per_cell/settings.tv.water_density
             for cell in self.cells:
-                cell.water.change_volume(water_vol_per_cell)
+                cell.water.change_volume(water_vol_per_cell, settings.initial_water_temperature)
         elif settings.water_init_mode == "dump":
             cell = random.choice(self.cells)
             cell.water.change_volume(settings.world_water_mass /
-                                     settings.tv.water_density)
+                                     settings.tv.water_density,
+                                     settings.initial_water_temperature)
 
     def slosh_oceans(self):
         """Move water between cells according to gravity."""
