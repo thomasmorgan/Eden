@@ -5,7 +5,8 @@ from simulation import Simulation
 from ui import UI
 import utility
 from utility import log
-import operator
+from operator import attrgetter
+import settings
 
 
 class EdenApp():
@@ -42,6 +43,15 @@ class EdenApp():
         self.running = False
         self.steps = 0
 
+        old_time_step = settings.time_step_size
+        time_step_sizes = [60*60*24*365*5, 60*60*24*365, 60*60*24*30,
+                           60*60*24, 60*60]
+        for t in time_step_sizes:
+            settings.time_step_size = t
+            for _ in range(10):
+                self.step()
+        settings.time_step_size = old_time_step
+
     def create_key_bindings(self):
         """Set up key bindings."""
         def leftKey(event):
@@ -76,7 +86,7 @@ class EdenApp():
 
         self.simulation.world.cells = sorted(
             self.simulation.world.cells,
-            key=operator.attrgetter("latitude", "longitude"))
+            key=attrgetter("latitude", "longitude"))
         self.ui.paint_tiles()
 
     def toggle_running(self):
