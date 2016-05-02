@@ -37,6 +37,12 @@ class Cell():
         self.water.absorb_solar_energy(energies[0])
         self.land.absorb_energy(energies[1])
 
+    def radiate_energy(self):
+        """Radiate energy into space."""
+        lost_energy = self.land.radiate_energy()
+        self.water.absorb_solar_energy(lost_energy)
+        self.water.radiate_energy()
+
     @property
     def surface_height(self):
         """Height of the surface (land or sea)."""
@@ -62,6 +68,7 @@ class Material(object):
         self.specific_heat_capacity = None
         self.density = None
         self.albedo = None
+        self.emissivity = None
 
     @property
     def temperature(self):
@@ -101,6 +108,22 @@ class Material(object):
         """Asborb energy."""
         self.thermal_energy += energy
 
+    def radiate_energy(self):
+        """Radiate energy into space."""
+        if self.mass > 0:
+            initial_energy = self.thermal_energy
+            top = 3 * (settings.tv.stefan_boltzmann_constant *
+                       settings.cell_area * self.emissivity *
+                       settings.time_step_size)
+            bottom = (pow(self.mass, 4) *
+                      pow(self.specific_heat_capacity, 4))
+            Z = top/bottom
+            self.thermal_energy = pow(Z + pow(self.thermal_energy, -3),
+                                      -1.0/3.0)
+            return initial_energy - self.thermal_energy
+        else:
+            return 0
+
 
 class Land(Material):
     """The terrain of a cell."""
@@ -112,6 +135,7 @@ class Land(Material):
         self.density = settings.land_density
         self.height = 0.0
         self.albedo = settings.land_albedo
+        self.emissivity = settings.land_emissivity
 
 
 class Water(Material):
@@ -124,6 +148,7 @@ class Water(Material):
         self.density = settings.water_density
         self.albedo = settings.water_albedo(self.cell.facing_sun)
         self.absorbicity = settings.water_absorbicity
+        self.emissivity = settings.water_emissivity
 
     def absorb_solar_energy(self, energy):
         """Absorb sunlight."""
