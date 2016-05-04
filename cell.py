@@ -135,6 +135,7 @@ class Land(Material):
         self.height = 0.0
         self.albedo = settings.land_albedo
         self.emissivity = settings.land_emissivity
+        self.thermal_conductivity = settings.land_thermal_conductivity
 
 
 class Water(Material):
