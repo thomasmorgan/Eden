@@ -155,8 +155,8 @@ class World():
     ### EXECUTION METHODS ###
     ######################"""
 
-    def radiate_energy(self):
-        """Lose thermal energy (kJ) into space.
+    def transfer_energy_vertically(self):
+        """Transfer energy between land/water/air/space.
 
         see:
         https://en.wikipedia.org/wiki/Stefan-Boltzmann_law
@@ -164,7 +164,8 @@ class World():
         eden/docs/thermal energy formulae.docx
         """
         for c in self.cells:
-            c.radiate_energy()
+            c.radiate_energy_vertically()
+            c.conduct_energy_vertically()
 
     def absorb_energy_from_sun(self, sun):
         """Gain thermal energy (kJ) from the sun."""
