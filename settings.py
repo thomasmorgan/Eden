@@ -75,6 +75,10 @@ water_attenuation_coefficient_infrared =\
 land_emissivity = tv.soil_emissivity
 water_emissivity = tv.water_emissivity
 
+""" thermal conductivities """
+land_thermal_conductivity = tv.earths_crust_thermal_conductivity
+water_thermal_conductivity = tv.water_thermal_conductivity
+
 """ ########################
 ######  MAP SETTINGS  ######
 ######################## """
