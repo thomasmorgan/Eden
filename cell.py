@@ -40,8 +40,9 @@ class Cell():
     def radiate_energy(self):
         """Radiate energy into space."""
         lost_energy = self.land.radiate_energy()
-        self.water.absorb_solar_energy(lost_energy)
-        self.water.radiate_energy()
+        if self.water.mass > 0:
+            self.water.absorb_solar_energy(lost_energy)
+            self.water.radiate_energy()
 
     @property
     def surface_height(self):
