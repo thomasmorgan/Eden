@@ -152,7 +152,16 @@ class Water(Material):
     def absorb_solar_energy(self, energy):
         """Absorb sunlight."""
         energy_absorbed =\
-            (1 - math.exp(-self.absorbicity *
+            (1 - math.exp(-self.attenuation_coefficient_sunlight *
+                          self.depth))*energy
+        self.thermal_energy += energy_absorbed
+        energy_remaining = energy - energy_absorbed
+        return [energy_absorbed, energy_remaining]
+
+    def absorb_infrared_energy(self, energy):
+        """Absorb sunlight."""
+        energy_absorbed =\
+            (1 - math.exp(-self.attenuation_coefficient_infrared *
                           self.depth))*energy
         self.thermal_energy += energy_absorbed
         energy_remaining = energy - energy_absorbed
