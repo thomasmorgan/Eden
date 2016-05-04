@@ -22,12 +22,8 @@ class Cell():
 
     def add_material(self, material, mass, temperature):
         """Add some material to a cell."""
-        if material == "land":
-            self.land.change_mass(mass, temperature)
-        elif material == "water":
-            self.water.change_mass(mass, temperature)
-        else:
-            raise ValueError("Unrecognised material: {}".format(material))
+        mat = getattr(self, material)
+        mat.change_mass(mass, temperature)
 
     def gain_solar_energy(self, energy):
         """Absorb energy from above."""
