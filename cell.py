@@ -110,7 +110,7 @@ class Material(object):
 
     def radiate_energy(self):
         """Radiate energy into space."""
-        if self.mass > 0:
+        if self.thermal_energy > 0 and self.mass > 0:
             initial_energy = self.thermal_energy
             top = 3 * (settings.tv.stefan_boltzmann_constant *
                        settings.cell_area * self.emissivity *
