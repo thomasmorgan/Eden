@@ -168,9 +168,8 @@ class World():
 
     def absorb_energy_from_sun(self, sun):
         """Gain thermal energy (kJ) from the sun."""
-        time = settings.time_step_size
-        max_W = settings.cell_area/(4*math.pi*pow(sun.distance, 2))*sun.power
-        max_E = max_W*time*(1-settings.land_albedo)
+        max_E = settings.cell_area / (4 * math.pi * pow(sun.distance, 2))\
+            * sun.power * settings.time_step_size
 
         for c in self.cells:
             c.gain_solar_energy(max_E*c.facing_sun)
