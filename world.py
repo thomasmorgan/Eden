@@ -5,6 +5,7 @@ from cell import Cell
 import settings
 import math
 from utility import log
+from operator import attrgetter
 
 
 class World():
@@ -118,7 +119,10 @@ class World():
                               settings.initial_water_temperature)
 
     def slosh_oceans(self):
-        """Move water between cells according to gravity."""
+        """Move water between cells according to gravity.
+
+        This method deviates from real physics.
+        """
         index = range(len(self.cells))
         random.shuffle(index)
         for i in index:
@@ -126,38 +130,26 @@ class World():
             cell = self.cells[i]
             if cell.water.depth > 0:
                 random.shuffle(cell.neighbors)
-                # get height difference with neighbors
-                height_diffs = [max(0, cell.surface_height - n.surface_height)
-                                for n in cell.neighbors]
-
-                # calculate the size and speed of a wave
-                # because the tile sends water to all neighbors simultaneously
-                # the speed is artifically reduced to avoid excess sloshing
-                wave_height = [min(cell.water.depth, h/2)
-                               for h in height_diffs]
-                wave_area = [h*settings.cell_width for h in wave_height]
-                wave_speed = [max(h/5, 1) for h in height_diffs]
-
-                # work out how far the wave goes
-                wave_distance = [s*settings.time_step_size for s in wave_speed]
-
-                # work out how much water moves
-                # it cannot be more than the max possible
-                max_vol_loosable = [w*settings.cell_area for w in wave_height]
-                vol_moved = [d*a for d, a in zip(wave_distance, wave_area)]
-                for j in range(len(cell.neighbors)):
-                    if vol_moved[j] > max_vol_loosable[j]:
-                        vol_moved[j] = max_vol_loosable[j]
-                total_vol = sum(vol_moved)
-                if total_vol > cell.water.volume:
-                    vol_moved = [v/(total_vol/cell.water.volume)
-                                 for v in vol_moved]
-
-                # update the cells
-                cell.water.change_volume(-sum(vol_moved))
-                for j in range(len(cell.neighbors)):
-                    if vol_moved[j] != 0:
-                        cell.neighbors[j].water.change_volume(vol_moved[j])
+                for n in cell.neighbors:
+                    height_diff = max(0,
+                                      cell.surface_height - n.surface_height)
+                    if height_diff > 0:
+                        wave_height = min(cell.water.depth, height_diff/2)
+                        wave_area = wave_height*settings.cell_width
+                        wave_vol = max(wave_area * 2.0,
+                                       1.0) * settings.time_step_size
+                        max_vol_loosable = min(settings.cell_width * wave_area,
+                                               cell.water.volume)
+                        vol_moved = min(wave_vol,
+                                        max_vol_loosable)
+                        mass_moved = vol_moved * settings.water_density
+                        temp = cell.water.temperature
+                        cell.add_material("water",
+                                          -mass_moved,
+                                          temp)
+                        n.add_material("water",
+                                       mass_moved,
+                                       temp)
 
     """ #####################
     ### EXECUTION METHODS ###
