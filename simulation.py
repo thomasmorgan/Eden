@@ -29,8 +29,7 @@ class Simulation():
 
     def step(self):
         """Advance 1 time step."""
-        self.world.conduct_energy_between_cells()
-        self.world.absorb_energy_from_sun(self.sun)
-        self.world.absorb_energy_from_core()
-        self.world.radiate_energy()
         self.world.slosh_oceans()
+        self.world.transfer_energy_vertically()
+        self.world.absorb_energy_from_core()
+        self.world.absorb_energy_from_sun(self.sun)
