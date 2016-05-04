@@ -146,8 +146,12 @@ class Water(Material):
         self.specific_heat_capacity = settings.water_specific_heat_capacity
         self.density = settings.water_density
         self.albedo = settings.water_albedo(self.cell.facing_sun)
-        self.absorbicity = settings.water_absorbicity
+        self.attenuation_coefficient_sunlight =\
+            settings.water_attenuation_coefficient_sunlight
+        self.attenuation_coefficient_infrared =\
+            settings.water_attenuation_coefficient_infrared
         self.emissivity = settings.water_emissivity
+        self.thermal_conductivity = settings.water_thermal_conductivity
 
     def absorb_solar_energy(self, energy):
         """Absorb sunlight."""
