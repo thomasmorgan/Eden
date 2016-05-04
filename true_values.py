@@ -35,8 +35,10 @@ water_specific_heat_capacity = 4186
 # http://hyperphysics.phy-astr.gsu.edu/hbase/thermo/spht.html
 
 """ thermal conductivities """
-earths_crust_thermal_conductivity = 1.5
 # (W/Km) http://www.engineeringtoolbox.com/thermal-conductivity-d_429.html
+earths_crust_thermal_conductivity = 1.5
+water_thermal_conductivity = 0.58
+
 
 """ densities """
 earths_crust_density = 3000
@@ -51,7 +53,11 @@ max_water_albedo = 0.95
 min_water_albedo = 0.05
 
 """ absorbicities """
-water_absorbicity = 0.03
+# http://oceanworld.tamu.edu/resources/ocng_textbook/chapter06/chapter06_10.htm
+# https://en.wikipedia.org/wiki/Beer%E2%80%93Lambert_law
+# https://en.wikipedia.org/wiki/Electromagnetic_absorption_by_water
+water_attenuation_coefficient_sunlight = 0.05
+water_attenuation_coefficient_infrared = 10000
 
 
 def water_albedo(facing):
