@@ -113,12 +113,27 @@ class UI():
                 if p > 1:
                     p = 1
         elif settings.draw_mode == "heat":
-            col_min = [82, 219, 255]
-            col_max = [255, 66, 0]
             if settings.draw_water is True:
-                p = max(min((cell.surface_temperature-200)/200, 1), 0)
+                temp = cell.surface_temperature
             else:
-                p = max(min((cell.land.temperature-200)/200, 1), 0)
+                temp = cell.land.temperature
+            if temp < 223:
+                col_min = [0, 0, 0]
+                col_max = [82, 219, 255]
+                p = max(min((temp)/223.0, 1), 0)
+            elif temp < 273:
+                col_min = [82, 219, 255]
+                col_max = [255, 255, 255]
+                p = max(min((temp-223.0)/50.0, 1), 0)
+            elif temp < 313:
+                col_min = [255, 255, 255]
+                col_max = [255, 66, 0]
+                p = max(min((temp-273.0)/40.0, 1), 0)
+            else:
+                col_min = [255, 66, 0]
+                col_max = [0, 0, 0]
+                p = max(min((temp-313.0)/100.0, 1), 0)
+
         elif settings.draw_mode == "wind":
             col_min = [0, 0, 0]
             col_max = [255, 255, 255]
