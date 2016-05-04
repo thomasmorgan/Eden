@@ -27,10 +27,12 @@ class Cell():
 
     def gain_solar_energy(self, energy):
         """Absorb energy from above."""
-        energy = self.water.reflect_solar_energy(energy)[1]
-        energy = self.water.absorb_solar_energy(energy)[1]
+        if self.water.mass > 0:
+            energy = self.water.reflect_solar_energy(energy)[1]
+            energy = self.water.absorb_solar_energy(energy)[1]
         energies = self.land.reflect_solar_energy(energy)
-        self.water.absorb_solar_energy(energies[0])
+        if self.water.mass > 0:
+            self.water.absorb_solar_energy(energies[0])
         self.land.absorb_energy(energies[1])
 
     def radiate_energy(self):
