@@ -65,8 +65,11 @@ water_specific_heat_capacity = 1.0*tv.water_specific_heat_capacity
 land_specific_heat_capacity = tv.earths_crust_specific_heat_capacity
 # (J/K kg)
 
-""" absorbicities """
-water_absorbicity = 1.0 * tv.water_absorbicity
+""" attenuation coefficients """
+water_attenuation_coefficient_sunlight =\
+    tv.water_attenuation_coefficient_sunlight
+water_attenuation_coefficient_infrared =\
+    tv.water_attenuation_coefficient_infrared
 
 """ emmisivities """
 land_emissivity = tv.soil_emissivity
