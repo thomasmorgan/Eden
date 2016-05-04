@@ -123,6 +123,40 @@ class Material(object):
         else:
             return 0
 
+    def conduct_energy(self, to, area):
+        """Conduct energy between materials.
+
+        See thermal energy formula for derivation.
+        It is actually based on the laws for thermal
+        eergy transfer via convection, but assumes the
+        two materials are not moving relative to each other.
+        """
+        target = getattr(self.cell, to)
+
+        if self.temperature > target.temperature:
+            E0 = self.thermal_energy
+            E = E0 + target.thermal_energy
+            m0 = self.mass
+            c0 = self.specific_heat_capacity
+            m1 = target.mass
+            c1 = target.specific_heat_capacity
+            k = self.thermal_conductivity
+            time = settings.time_step_size
+
+            energy_loss = E0 - (
+                ((E * m0 * c0) / (m1 * c1 + m0 * c0)) +
+                (E0 - (
+                    (E * m0 * c0) /
+                    (m1 * c1 + m0 * c0)
+                )) * math.exp(
+                    (-k * area * (m1 * c1 + m0 * c0) * time) /
+                    (m0 * c0 * m1 * c1)
+                )
+            )
+
+            self.thermal_energy -= energy_loss
+            target.thermal_energy += energy_loss
+
 
 class Land(Material):
     """The terrain of a cell."""
