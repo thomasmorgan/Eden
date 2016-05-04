@@ -32,15 +32,29 @@ class Cell():
             energy = self.water.absorb_solar_energy(energy)[1]
         energies = self.land.reflect_solar_energy(energy)
         if self.water.mass > 0:
-            self.water.absorb_solar_energy(energies[0])
+            self.water.absorb_infrared_energy(energies[0])
         self.land.absorb_energy(energies[1])
 
-    def radiate_energy(self):
-        """Radiate energy into space."""
-        lost_energy = self.land.radiate_energy()
+    def gain_core_energy(self, energy):
+        """Absorb energy from the world's core."""
+        self.land.absorb_energy(energy)
+
+    def radiate_energy_vertically(self):
+        """Radiate energy between land/water/air."""
+        # land radiates energy
+        lost_land_energy = self.land.radiate_energy()
         if self.water.mass > 0:
-            self.water.absorb_solar_energy(lost_energy)
+            lost_water_energy = self.water.radiate_energy()
             self.water.radiate_energy()
+            self.water.absorb_infrared_energy(lost_land_energy)
+            self.land.absorb_energy(lost_water_energy)
+
+    def conduct_energy_vertically(self):
+        """Conduct energy between land/water/air."""
+        # land conducts to water
+        if self.water.mass > 0:
+            self.land.conduct_energy(to="water", area=settings.cell_area)
+            self.water.conduct_energy(to="land", area=settings.cell_area)
 
     @property
     def surface_height(self):
