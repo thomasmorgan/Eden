@@ -7,7 +7,7 @@ import math
 #####  GAME SETTINGS  ######
 ######################## """
 
-time_step_size = 60*60*24  # (s)
+time_step_size = 60 * 60 * 24  # (s)
 
 
 """ ########################
