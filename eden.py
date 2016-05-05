@@ -115,7 +115,6 @@ class EdenApp():
             settings.time_step_size = time_steps[index + 1]
         elif direction < 0 and index != 0:
             settings.time_step_size = time_steps[index - 1]
-        print settings.time_step_size
 
     def toggle_running(self):
         """Start/stop the simulation."""

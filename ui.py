@@ -3,7 +3,6 @@
 from Tkinter import Button, LEFT, RIGHT, Canvas, Label, StringVar
 import settings
 from utility import log
-import datetime
 
 
 class UI():
@@ -45,6 +44,7 @@ class UI():
         self.time_stamp = StringVar()
         self.time_label = Label(self.frame, textvariable=self.time_stamp)
         self.time_label.pack(side=RIGHT)
+        self.update_time_label(0)
 
     def add_map(self):
         """Add a blank map."""
@@ -99,19 +99,20 @@ class UI():
 
     def update_time_label(self, time):
         """Update the UI time label."""
-        date = datetime.datetime.fromtimestamp(time)
-        year = "%04d" % (date.year - 1970, )
-        month = ["zzz", "January", "February", "March", "April", "May", "June",
-                 "July", "August", "September", "October", "November",
-                 "December"][date.month]
-        ordinal = lambda n: "%d%s" % (
-            n, "tsnrhtdd"[(n/10 % 10 != 1)*(n % 10 < 4) * n % 10::4])
-        day = ordinal(date.day)
-        hour = "%02d" % (date.hour, )
-        minute = "%02d" % (date.minute, )
-        second = "%02d" % (date.second, )
-        self.time_stamp.set("Time: {}:{}:{}, {} {}, {}"
-                            .format(hour, minute, second, month, day, year))
+        year = time / (60*60*24*365)
+        time -= year*(60*60*24*365)
+        day = time / (60*60*24)
+        time -= day * (60*60*24)
+        hour = time / (60*60)
+        time -= hour*(60*60)
+        minute = time / 60
+        time -= minute*60
+        second = time
+        hour = "%02d" % (hour, )
+        minute = "%02d" % (minute, )
+        second = "%02d" % (second, )
+        self.time_stamp.set("Time: {}:{}:{}, day {}, year {}"
+                            .format(hour, minute, second, day, year))
 
     def cell_color(self, cell):
         """Work out what color a tile should be.
