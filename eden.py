@@ -110,11 +110,34 @@ class EdenApp():
             60*60*24*365*100000,
             60*60*24*365*1000000
         ]
+        step_descriptions = [
+            "1s",
+            "10s",
+            "1 minute",
+            "10 minutes",
+            "1 hour",
+            "6 hours",
+            "1 day",
+            "7 days",
+            "30 days",
+            "1 year",
+            "10 years",
+            "50 years",
+            "100 years",
+            "500 years",
+            "1,000 years",
+            "10,000 years",
+            "100,000 years",
+            "1,000,000 years"
+        ]
         index = time_steps.index(settings.time_step_size)
         if direction > 0 and index != len(time_steps) - 1:
             settings.time_step_size = time_steps[index + 1]
+            settings.time_step_description = step_descriptions[index + 1]
         elif direction < 0 and index != 0:
             settings.time_step_size = time_steps[index - 1]
+            settings.time_step_description = step_descriptions[index - 1]
+        self.ui.update_time_label(self.time)
 
     def toggle_running(self):
         """Start/stop the simulation."""

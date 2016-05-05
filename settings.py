@@ -8,6 +8,7 @@ import math
 ######################## """
 
 time_step_size = 1  # (s)
+time_step_description = "1s"
 
 
 """ ########################

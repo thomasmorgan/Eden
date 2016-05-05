@@ -108,11 +108,13 @@ class UI():
         minute = time / 60
         time -= minute*60
         second = time
+        year = format(year, ",d")
         hour = "%02d" % (hour, )
         minute = "%02d" % (minute, )
         second = "%02d" % (second, )
-        self.time_stamp.set("Time: {}:{}:{}, day {}, year {}"
-                            .format(hour, minute, second, day, year))
+        self.time_stamp.set("Time: {}:{}:{}, day {}, year {}. Step size: {}"
+                            .format(hour, minute, second, day, year,
+                                    settings.time_step_description))
 
     def cell_color(self, cell):
         """Work out what color a tile should be.
