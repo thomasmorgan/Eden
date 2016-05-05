@@ -25,9 +25,6 @@ class EdenApp():
         utility.log_welcome()
         log("> Creating simulation")
         self.simulation = Simulation()
-        for x in range(000):
-            print x
-            self.simulation.step()
 
         # create the app
         log("> Creating UI")
