@@ -100,14 +100,14 @@ class UI():
     def update_time_label(self, time):
         """Update the UI time label."""
         date = datetime.datetime.fromtimestamp(time)
-        year = date.year - 1970
+        year = "%04d" % (date.year - 1970, )
         month = ["zzz", "January", "February", "March", "April", "May", "June",
                  "July", "August", "September", "October", "November",
                  "December"][date.month]
         day = date.day
-        hour = date.hour
-        minute = date.minute
-        second = date.second
+        hour = "%02d" % (date.hour, )
+        minute = "%02d" % (date.minute, )
+        second = "%02d" % (date.second, )
         self.time_stamp.set("Time: {}:{}:{}, {} {}, {}"
                             .format(hour, minute, second, month, day, year))
 
