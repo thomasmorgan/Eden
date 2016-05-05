@@ -104,7 +104,9 @@ class UI():
         month = ["zzz", "January", "February", "March", "April", "May", "June",
                  "July", "August", "September", "October", "November",
                  "December"][date.month]
-        day = date.day
+        ordinal = lambda n: "%d%s" % (
+            n, "tsnrhtdd"[(n/10 % 10 != 1)*(n % 10 < 4) * n % 10::4])
+        day = ordinal(date.day)
         hour = "%02d" % (date.hour, )
         minute = "%02d" % (date.minute, )
         second = "%02d" % (date.second, )
