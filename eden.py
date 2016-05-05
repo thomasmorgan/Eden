@@ -69,11 +69,11 @@ class EdenApp():
 
     def step(self):
         """Advance one step in time."""
+        self.steps += 1
+        self.ui.update_time_label(self.steps)
         self.simulation.step()
         self.ui.paint_tiles()
         self.master.update()
-        self.steps += 1
-        print self.steps
 
     def rotate_map(self, degrees):
         """Spin the map."""

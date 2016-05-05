@@ -1,6 +1,6 @@
 """The user interface."""
 
-from Tkinter import Button, LEFT, Canvas
+from Tkinter import Button, LEFT, RIGHT, Canvas, Label, StringVar
 import settings
 from utility import log
 
@@ -19,6 +19,7 @@ class UI():
         self.world = self.app.simulation.world
 
         self.add_buttons()
+        self.add_other_widgets()
         self.add_map()
 
         log(">> Creating tiles")
@@ -37,6 +38,12 @@ class UI():
         heat_button = Button(self.frame, text="HEAT", fg="red",
                              command=self.draw_heat)
         heat_button.pack(side=LEFT)
+
+    def add_other_widgets(self):
+        """Add other widgets to the frame."""
+        self.time_stamp = StringVar()
+        self.time_label = Label(self.frame, textvariable=self.time_stamp)
+        self.time_label.pack(side=RIGHT)
 
     def add_map(self):
         """Add a blank map."""
@@ -88,6 +95,10 @@ class UI():
         for x in range(len(self.tiles)):
             self.map.itemconfigure(self.tiles[x],
                                    fill=self.cell_color(self.world.cells[x]))
+
+    def update_time_label(self, time):
+        """Update the UI time label."""
+        self.time_stamp.set("Time: {}".format(time))
 
     def cell_color(self, cell):
         """Work out what color a tile should be.
