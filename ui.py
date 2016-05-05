@@ -37,12 +37,6 @@ class UI():
         heat_button = Button(self.frame, text="HEAT", fg="red",
                              command=self.draw_heat)
         heat_button.pack(side=LEFT)
-        step_button = Button(self.frame, text="STEP", fg="red",
-                             command=self.app.step)
-        step_button.pack(side=LEFT)
-        quit_button = Button(self.frame, text="QUIT", fg="red",
-                             command=self.frame.quit)
-        quit_button.pack(side=LEFT)
 
     def add_map(self):
         """Add a blank map."""
