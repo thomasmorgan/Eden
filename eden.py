@@ -43,15 +43,6 @@ class EdenApp():
         self.running = False
         self.time = 0
 
-        old_time_step = settings.time_step_size
-        time_step_sizes = [60*60*24*365*5, 60*60*24*365, 60*60*24*30,
-                           60*60*24, 60*60]
-        for t in time_step_sizes:
-            settings.time_step_size = t
-            for _ in range(10):
-                self.step()
-        settings.time_step_size = old_time_step
-
     def create_key_bindings(self):
         """Set up key bindings."""
         def leftKey(event):
@@ -60,11 +51,19 @@ class EdenApp():
         def rightKey(event):
             self.rotate_map(10.0)
 
+        def upKey(event):
+            self.change_time_step(1)
+
+        def downKey(event):
+            self.change_time_step(-1)
+
         def spaceKey(event):
             self.toggle_running()
 
         self.master.bind('<Left>', leftKey)
         self.master.bind('<Right>', rightKey)
+        self.master.bind('<Up>', upKey)
+        self.master.bind('<Down>', downKey)
         self.master.bind('<space>', spaceKey)
 
     def step(self):
@@ -88,6 +87,35 @@ class EdenApp():
             self.simulation.world.cells,
             key=attrgetter("latitude", "longitude"))
         self.ui.paint_tiles()
+
+    def change_time_step(self, direction):
+        """Change the time_step_size."""
+        time_steps = [
+            1,
+            10,
+            60,
+            60*10,
+            60*60,
+            60*60*6,
+            60*60*24,
+            60*60*24*7,
+            60*60*24*30,
+            60*60*24*365,
+            60*60*24*365*10,
+            60*60*24*365*50,
+            60*60*24*365*100,
+            60*60*24*365*500,
+            60*60*24*365*1000,
+            60*60*24*365*10000,
+            60*60*24*365*100000,
+            60*60*24*365*1000000
+        ]
+        index = time_steps.index(settings.time_step_size)
+        if direction > 0 and index != len(time_steps) - 1:
+            settings.time_step_size = time_steps[index + 1]
+        elif direction < 0 and index != 0:
+            settings.time_step_size = time_steps[index - 1]
+        print settings.time_step_size
 
     def toggle_running(self):
         """Start/stop the simulation."""
