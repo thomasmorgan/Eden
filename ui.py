@@ -3,6 +3,7 @@
 from Tkinter import Button, LEFT, RIGHT, Canvas, Label, StringVar
 import settings
 from utility import log
+import datetime
 
 
 class UI():
@@ -98,7 +99,17 @@ class UI():
 
     def update_time_label(self, time):
         """Update the UI time label."""
-        self.time_stamp.set("Time: {}".format(time))
+        date = datetime.datetime.fromtimestamp(time)
+        year = date.year - 1970
+        month = ["zzz", "January", "February", "March", "April", "May", "June",
+                 "July", "August", "September", "October", "November",
+                 "December"][date.month]
+        day = date.day
+        hour = date.hour
+        minute = date.minute
+        second = date.second
+        self.time_stamp.set("Time: {}:{}:{}, {} {}, {}"
+                            .format(hour, minute, second, month, day, year))
 
     def cell_color(self, cell):
         """Work out what color a tile should be.
