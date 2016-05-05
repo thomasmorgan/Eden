@@ -41,7 +41,7 @@ class EdenApp():
         self.create_key_bindings()
 
         self.running = False
-        self.steps = 0
+        self.time = 0
 
         old_time_step = settings.time_step_size
         time_step_sizes = [60*60*24*365*5, 60*60*24*365, 60*60*24*30,
@@ -69,8 +69,8 @@ class EdenApp():
 
     def step(self):
         """Advance one step in time."""
-        self.steps += 1
-        self.ui.update_time_label(self.steps)
+        self.time += settings.time_step_size
+        self.ui.update_time_label(self.time)
         self.simulation.step()
         self.ui.paint_tiles()
         self.master.update()
