@@ -1,6 +1,6 @@
 """The user interface."""
 
-from Tkinter import Button, LEFT, RIGHT, Canvas, Label, StringVar
+from Tkinter import Button, Canvas, Label, StringVar, W, E
 import settings
 from utility import log
 
@@ -31,19 +31,22 @@ class UI():
         """Add buttons to the frame."""
         ground_button = Button(self.frame, text="TERRA", fg="red",
                                command=self.draw_terrain)
-        ground_button.pack(side=LEFT)
+        ground_button.grid(row=1, column=0, sticky=W+E)
         water_button = Button(self.frame, text="WATER", fg="red",
                               command=self.toggle_water)
-        water_button.pack(side=LEFT)
+        water_button.grid(row=1, column=1, sticky=W+E)
         heat_button = Button(self.frame, text="HEAT", fg="red",
                              command=self.draw_heat)
-        heat_button.pack(side=LEFT)
+        heat_button.grid(row=1, column=2, sticky=W+E)
 
     def add_other_widgets(self):
         """Add other widgets to the frame."""
+        self.time_rate = StringVar()
+        self.rate_label = Label(self.frame, textvariable=self.time_rate)
+        self.rate_label.grid(row=0, column=0, sticky=W, columnspan=2)
         self.time_stamp = StringVar()
         self.time_label = Label(self.frame, textvariable=self.time_stamp)
-        self.time_label.pack(side=RIGHT)
+        self.time_label.grid(row=0, column=2, columnspan=8)
         self.update_time_label(0)
 
     def add_map(self):
@@ -52,7 +55,10 @@ class UI():
                           width=settings.map_width + 2*settings.map_border,
                           height=settings.map_height + 2*settings.map_border,
                           bg="black", highlightthickness=0)
-        self.map.pack(side=LEFT)
+        self.map.grid(columnspan=12)
+
+        for c in range(12):
+            self.frame.grid_columnconfigure(c, minsize=settings.map_width/12)
 
     def create_tiles(self):
         """Create blank tiles."""
@@ -112,9 +118,9 @@ class UI():
         hour = "%02d" % (hour, )
         minute = "%02d" % (minute, )
         second = "%02d" % (second, )
-        self.time_stamp.set("Time: {}:{}:{}, day {}, year {}. Step size: {}"
-                            .format(hour, minute, second, day, year,
-                                    settings.time_step_description))
+        self.time_stamp.set("{}:{}:{}, day {}, year {}."
+                            .format(hour, minute, second, day, year))
+        self.time_rate.set("x{}".format(settings.time_step_description))
 
     def cell_color(self, cell):
         """Work out what color a tile should be.

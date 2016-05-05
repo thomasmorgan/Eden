@@ -30,7 +30,7 @@ class EdenApp():
         log("> Creating UI")
         master.wm_title("Eden")
         self.frame = Frame(master)
-        self.frame.pack()
+        self.frame.grid()
 
         # create the ui
         self.ui = UI(self.master, self, self.frame)
