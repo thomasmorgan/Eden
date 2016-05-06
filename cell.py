@@ -56,6 +56,13 @@ class Cell():
             self.land.conduct_energy(to=self.water, area=settings.cell_area)
             self.water.conduct_energy(to=self.land, area=settings.cell_area)
 
+    def conduct_energy_horizontally(self):
+        """Conduct energy between neighbors."""
+        for n in self.neighbors:
+            self.land.conduct_energy(
+                to=n.land, area=settings.cell_width*settings.land_depth
+            )
+
     @property
     def surface_height(self):
         """Height of the surface (land or sea)."""

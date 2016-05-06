@@ -31,5 +31,6 @@ class Simulation():
         """Advance 1 time step."""
         self.world.slosh_oceans()
         self.world.transfer_energy_vertically()
+        self.world.transfer_energy_horizontally()
         self.world.absorb_energy_from_core()
         self.world.absorb_energy_from_sun(self.sun)

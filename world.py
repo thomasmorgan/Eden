@@ -5,7 +5,6 @@ from cell import Cell
 import settings
 import math
 from utility import log
-from operator import attrgetter
 
 
 class World():
@@ -166,6 +165,11 @@ class World():
         for c in self.cells:
             c.radiate_energy_vertically()
             c.conduct_energy_vertically()
+
+    def transfer_energy_horizontally(self):
+        """Transfer energy between neighboring tiles."""
+        for c in self.cells:
+            c.conduct_energy_horizontally()
 
     def absorb_energy_from_sun(self, sun):
         """Gain thermal energy (kJ) from the sun."""
