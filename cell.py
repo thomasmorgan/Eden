@@ -53,8 +53,8 @@ class Cell():
         """Conduct energy between land/water/air."""
         # land conducts to water
         if self.water.mass > 0:
-            self.land.conduct_energy(to="water", area=settings.cell_area)
-            self.water.conduct_energy(to="land", area=settings.cell_area)
+            self.land.conduct_energy(to=self.water, area=settings.cell_area)
+            self.water.conduct_energy(to=self.land, area=settings.cell_area)
 
     @property
     def surface_height(self):
@@ -145,7 +145,7 @@ class Material(object):
         eergy transfer via convection, but assumes the
         two materials are not moving relative to each other.
         """
-        target = getattr(self.cell, to)
+        target = to
 
         if self.temperature > target.temperature:
             E0 = self.thermal_energy
