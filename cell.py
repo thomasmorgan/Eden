@@ -62,6 +62,13 @@ class Cell():
             self.land.conduct_energy(
                 to=n.land, area=settings.cell_width*settings.land_depth
             )
+        if self.water.mass > 0:
+            for n in self.neighbors:
+                if n.water.mass > 0:
+                    mean_depth = (self.water.depth + n.water.depth)/2
+                    self.water.conduct_energy(
+                        to=n.water, area=mean_depth*settings.cell_area
+                    )
 
     @property
     def surface_height(self):
