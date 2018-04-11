@@ -1,10 +1,12 @@
 """The world class."""
 
 import random
-from cell import Cell
 import settings
 import math
+import utility
 from utility import log
+import numpy as np
+import scipy.stats as stats
 
 
 class World():
