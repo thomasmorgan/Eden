@@ -32,50 +32,44 @@ class World():
     def create_cells(self):
         """Create the cells.
 
-        Cells are the spatial units of the world and are stored in a list.
+        Cells are the spatial units of the world and are stored in a dictionary.
         """
-        self.cells = []
-        degrees_per_cell = 360.0/float(settings.world_cell_circumference)
-        for y in range(settings.world_cell_circumference/2 + 1):
-            latitude = degrees_per_cell*y
 
-            if latitude in [0, 180]:
-                self.cells.append(Cell(longitude=0.0, latitude=latitude))
+        # initialize empty dictionary
+        self.cells = {}
+
+        # add longitude and latitiude for all cells
+        longitude = []
+        latitude = []
+        for y in range(settings.world_cell_circumference/2 + 1):
+            lat = settings.degrees_per_cell*y - 90.0
+
+            if lat in [-90.0, 90.0]:
+                longitude.append(0.0)
+                latitude.append(lat)
             else:
-                rad = math.sin(math.radians(latitude))*settings.world_radius
+                # radius of world at this latitiude
+                rad = np.cos(np.radians(lat))*settings.world_radius
                 circ = 2*math.pi*rad
                 cells = int(round(circ/float(settings.cell_width)))
                 for x in range(cells):
-                    longitude = (360.0/float(cells))*x
-                    self.cells.append(Cell(longitude=longitude,
-                                           latitude=latitude))
+                    longit = (360.0/float(cells))*x - 180.0
+                    longitude.append(longit)
+                    latitude.append(lat)
 
-        log(">> Assigning cells neighbors")
-        for a in range(len(self.cells)):
-            cell = self.cells[a]
-            for b in range(a+1, len(self.cells)):
-                c = self.cells[b]
-                if math.acos(
-                    max(
-                        min(math.cos(math.radians(cell.latitude)) *
-                            math.cos(math.radians(c.latitude)) +
-                            math.sin(math.radians(cell.latitude)) *
-                            math.sin(math.radians(c.latitude)) *
-                            math.cos(abs(math.radians(cell.longitude) -
-                                         math.radians(c.longitude))),
-                            1.0),
-                        -1.0)) < 1.3*math.radians(degrees_per_cell):
-                    cell.neighbors.append(c)
-                    c.neighbors.append(cell)
+        self.cells['longitude'] = np.array(longitude)
+        self.cells['latitude'] = np.array(latitude)
+        self.num_cells = len(self.cells['latitude'])
 
-    def create_land(self):
-        """Add land to each cell."""
-        vol_per_cell = settings.cell_area * settings.land_depth
-        mass_per_cell = vol_per_cell*settings.land_density
-        for c in self.cells:
-            c.add_material("land",
-                           mass_per_cell,
-                           settings.initial_land_temperature)
+        print self.cells["latitude"]
+        print self.cells["longitude"]
+
+        # create a distance matrix and add it to the dictionary
+        self.cells['distance'] = np.empty(shape=(self.num_cells, self.num_cells))
+        for x in range(self.num_cells):
+            self.cells['distance'][x, :] = utility.haversine(self.cells['longitude'][x], self.cells['latitude'][x], self.cells['longitude'], self.cells['latitude'])
+
+        print self.cells["distance"][0, :]
 
     def create_terrain(self):
         """Assign height values to the land."""
