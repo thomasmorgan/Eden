@@ -74,28 +74,23 @@ class World():
     def create_terrain(self):
         """Assign height values to the land."""
         # see http://mathworld.wolfram.com/GreatCircle.html
-        settings.n_distortions = 1000
-        longs = [random.choice(self.cells).longitude
-                 for _ in range(settings.n_distortions)]
-        lats = [random.choice(self.cells).latitude
-                for _ in range(settings.n_distortions)]
-        heights = [5000]*len(range(settings.n_distortions))
-        rates = [random.random()*3 + 3 for _ in range(settings.n_distortions)]
 
-        for cell in self.cells:
-            distances = [settings.world_radius*math.acos(
-                max(min(
-                    math.cos(math.radians(cell.latitude)) *
-                    math.cos(math.radians(lat)) +
-                    math.sin(math.radians(cell.latitude)) *
-                    math.sin(math.radians(lat)) *
-                    math.cos(abs(math.radians(cell.longitude) -
-                                 math.radians(long))),
-                    1.0), -1.0))
-                for lat, long in zip(lats, longs)]
-            hs = [h / (d/(100000*r) + 1)
-                  for h, d, r in zip(heights, distances, rates)]
-            cell.land.height += sum(hs)
+        self.cells["altitude"] = np.zeros(shape=self.num_cells, dtype=float)
+
+        # choose focal cells
+        cells = np.random.choice(range(self.num_cells), settings.n_distortions)
+
+        # choose magnitudes of distortions
+        magnitudes = (np.random.rand(settings.n_distortions)*1.5 - 0.5)*settings.max_distortion
+
+        # choose scale of distortions
+        sds = (np.random.rand(settings.n_distortions)*0.8 + 0.2)*settings.cell_width*4
+
+        for i in range(settings.n_distortions):
+            distance = self.cells["distance"][cells[i], ]
+            self.cells["altitude"] += magnitudes[i]*stats.norm.pdf(distance, loc=0, scale=sds[i])/stats.norm.pdf(0, loc=0, scale=sds[i])
+
+        self.normalize_terrain()
 
     def create_oceans(self):
         """Create water."""
