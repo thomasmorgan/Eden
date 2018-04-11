@@ -64,20 +64,25 @@ class UI():
         """Create blank tiles."""
         self.map.delete("all")
         self.tiles = []
-        for cell in self.world.cells:
-            n_in_row = len([c for c in self.world.cells
-                            if c.latitude == cell.latitude])
+        for i in range(self.world.num_cells):
+            # get the coords of the current cell
+            lat = self.world.cells["latitude"][i]
+            lon = self.world.cells["longitude"][i]
+            # how many cells are at this latitiude?
+            n_in_row = sum(self.world.cells["latitude"] == lat)
+
+            # position of top-left corner of left most tile in this row
             x_start = ((settings.map_width/2.0) -
                        (n_in_row/2.0)*settings.tile_width)
-            y_start = ((cell.latitude/settings.cell_degree_width) *
+            y_start = (((lat+90.0)/settings.cell_degree_width) *
                        settings.tile_height)
 
             self.tiles.append(self.map.create_rectangle(
                 (x_start +
-                    (cell.longitude/360.0) * n_in_row * settings.tile_width),
+                    ((lon+180)/360.0) * n_in_row * settings.tile_width),
                 y_start,
                 (x_start + settings.tile_width + 1 +
-                    (cell.longitude/360.0) * n_in_row * settings.tile_width),
+                    ((lon+180)/360.0) * n_in_row * settings.tile_width),
                 y_start + settings.tile_height,
                 fill="yellow",
                 outline=""))
@@ -101,7 +106,7 @@ class UI():
         """Color the tiles."""
         for x in range(len(self.tiles)):
             self.map.itemconfigure(self.tiles[x],
-                                   fill=self.cell_color(self.world.cells[x]))
+                                   fill=self.cell_color(x))
 
     def update_time_label(self, time):
         """Update the UI time label."""
@@ -128,15 +133,15 @@ class UI():
         The color depends on the cell and the draw_mode parameter.
         """
         if settings.draw_mode == "terrain":
-            if cell.water.depth == 0.0 or settings.draw_water is False:
+            if self.world.cells["water_depth"][cell] == 0.0 or settings.draw_water is False:
                 col_min = [50, 20, 4]
                 col_max = [255, 255, 255]
-                p = ((cell.land.height - settings.min_ground_height) /
+                p = ((self.world.cells["altitude"][cell] - settings.min_ground_height) /
                      (settings.max_ground_height - settings.min_ground_height))
             else:
                 col_min = [153, 204, 255]
                 col_max = [20, 20, 80]
-                p = cell.water.depth/6000.0
+                p = self.world.cells["water_depth"][cell]/6000.0
                 if p > 1:
                     p = 1
         elif settings.draw_mode == "heat":
