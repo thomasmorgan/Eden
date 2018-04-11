@@ -192,17 +192,12 @@ class World():
 
     def normalize_terrain(self):
         """Adjust land heights so they fit within bounds and average is 0."""
-        heights = [t.land.height for t in self.cells]
-        mean_height = sum(heights)/len(heights)
-        for t in self.cells:
-            t.land.height = t.land.height - mean_height
+        mean_height = sum(self.cells["altitude"])/self.num_cells
+        self.cells["altitude"] -= mean_height
 
-        heights = [t.land.height for t in self.cells]
-
-        scale = max([1, min(heights)/settings.min_ground_height, max(heights) /
+        scale = max([1, min(self.cells["altitude"])/settings.min_ground_height, max(self.cells["altitude"]) /
                      settings.max_ground_height])
-        for t in self.cells:
-            t.land.height = t.land.height/scale
+        self.cells["altitude"] = self.cells["altitude"]/scale
 
     def raise_cell(self, cell_id, height):
         """Raise a cells land height."""
