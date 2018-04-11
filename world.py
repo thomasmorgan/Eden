@@ -94,17 +94,14 @@ class World():
 
     def create_oceans(self):
         """Create water."""
+        self.cells["water"] = np.zeros(shape=(self.num_cells), dtype=float)
         if settings.water_init_mode == "even":
             water_mass_per_cell = settings.world_water_mass/len(self.cells)
-            for cell in self.cells:
-                cell.add_material("water",
-                                  water_mass_per_cell,
-                                  settings.initial_water_temperature)
+            self.cells["water"] = np.full(water_mass_per_cell, shape=(self.num_cells), dtype=float)
         elif settings.water_init_mode == "dump":
-            cell = random.choice(self.cells)
-            cell.add_material("water",
-                              settings.world_water_mass,
-                              settings.initial_water_temperature)
+            cell = np.random.randint(0, self.num_cells)
+            self.cells["water"][cell] = settings.world_water_mass
+        self.cells["water_depth"] = (self.cells["water"]/settings.water_density)/settings.cell_area
 
     def slosh_oceans(self):
         """Move water between cells according to gravity.
