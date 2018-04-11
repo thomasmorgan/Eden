@@ -68,10 +68,13 @@ class World():
 
         # create a distance matrix and add it to the dictionary
         self.cells['distance'] = np.empty(shape=(self.num_cells, self.num_cells))
+        self.cells['influence'] = np.empty(shape=(self.num_cells, self.num_cells))
         for x in range(self.num_cells):
             self.cells['distance'][x, :] = utility.haversine(self.cells['longitude'][x], self.cells['latitude'][x], self.cells['longitude'], self.cells['latitude'])
+            self.cells['influence'][x, :] = np.exp(-settings.influence_lambda*self.cells['distance'][x, :])
 
-        print self.cells["distance"][0, :]
+        print self.cells['distance'][1, :]
+        print self.cells['influence'][1, :]
 
     def create_terrain(self):
         """Assign height values to the land."""
