@@ -28,7 +28,12 @@ water_init_mode = "even"
 world_cell_circumference = 80  # (cells)
 cell_degree_width = 360.0/float(world_cell_circumference)  # (degrees)
 cell_width = world_circumference/world_cell_circumference  # (m)
-cell_area = pow(cell_width, 2)
+cell_area = pow(cell_width, 2)  # m**2
+degrees_per_cell = 360.0/float(world_cell_circumference)  # (degrees)
+influence_lambda = 1.0 / cell_width
+
+""" transport rates """
+water_transport_rate = 1000  # (kg/s m^2)
 
 """ world shape """
 min_ground_height = -10000
@@ -79,6 +84,15 @@ water_emissivity = tv.water_emissivity
 """ thermal conductivities """
 land_thermal_conductivity = tv.earths_crust_thermal_conductivity
 water_thermal_conductivity = tv.water_thermal_conductivity
+
+""" ############################
+######  TERRAIN SETTINGS  ######
+############################ """
+
+# number of distortions when terrain initialized
+n_distortions = 1000
+# maximum altitude change due to distortion
+max_distortion = 5000  # m
 
 """ ########################
 ######  MAP SETTINGS  ######
