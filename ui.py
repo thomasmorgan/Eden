@@ -40,6 +40,9 @@ class UI():
         heat_button = Button(self.frame, text="HEAT", fg="red",
                              command=self.draw_heat)
         heat_button.grid(row=1, column=2, sticky=W+E)
+        influence_button = Button(self.frame, text="INFLUENCE", fg="red",
+                                  command=self.draw_influence)
+        influence_button.grid(row=1, column=2, sticky=W+E)
 
     def add_other_widgets(self):
         """Add other widgets to the frame."""
@@ -179,6 +182,27 @@ class UI():
 
                 self.tiles["color"] = [tc if wd < 0.01 else wc for tc, wc, wd in zip(self.tiles["color"], water_cols, self.world.cells["water_depth"])]
 
+        if settings.draw_mode == "influence":
+            influence_col_min = [50, 20, 4]
+            influence_col_max = [175, 175, 255]
+
+            focal_cell = np.random.randint(self.world.num_cells)
+
+            p_influence = self.world.cells["influence"][focal_cell, :]
+
+            # terrain_col_min matrix
+            dum = np.asarray(influence_col_min*self.world.num_cells).reshape(self.world.num_cells, -1)
+            # terrain_col_max matrix
+            dum2 = np.asarray(influence_col_max*self.world.num_cells).reshape(self.world.num_cells, -1)
+
+            dum3 = (1-p_influence)[:, np.newaxis]*dum
+            dum4 = (p_influence)[:, np.newaxis]*dum2
+
+            dum5 = (dum3 + dum4).astype(int)
+
+            self.tiles["color"] = ['#%02X%02X%02X' % (d[0], d[1], d[2]) for d in dum5]
+
+
         # elif settings.draw_mode == "heat":
         #     if settings.draw_water is True:
         #         temp = cell.surface_temperature
@@ -219,6 +243,11 @@ class UI():
     def draw_heat(self):
         """Paint map by land temperature."""
         settings.draw_mode = "heat"
+        self.paint_tiles()
+
+    def draw_influence(self):
+        """Paint map by influence from random focal cell."""
+        settings.draw_mode = "influence"
         self.paint_tiles()
 
     def toggle_water(self):
