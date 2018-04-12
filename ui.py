@@ -3,6 +3,7 @@
 from Tkinter import Button, Canvas, Label, StringVar, W, E
 import settings
 from utility import log
+import numpy as np
 
 
 class UI():
@@ -21,6 +22,8 @@ class UI():
         self.add_buttons()
         self.add_other_widgets()
         self.add_map()
+
+        self.tiles = {}
 
         log(">> Creating tiles")
         self.create_tiles()
@@ -63,7 +66,7 @@ class UI():
     def create_tiles(self):
         """Create blank tiles."""
         self.map.delete("all")
-        self.tiles = []
+        tiles = []
         for i in range(self.world.num_cells):
             # get the coords of the current cell
             lat = self.world.cells["latitude"][i]
@@ -77,7 +80,7 @@ class UI():
             y_start = (((lat+90.0)/settings.cell_degree_width) *
                        settings.tile_height)
 
-            self.tiles.append(self.map.create_rectangle(
+            tiles.append(self.map.create_rectangle(
                 (x_start +
                     ((lon+180)/360.0) * n_in_row * settings.tile_width),
                 y_start,
@@ -86,10 +89,11 @@ class UI():
                 y_start + settings.tile_height,
                 fill="yellow",
                 outline=""))
-        for x in range(len(self.tiles)):
-            self.map.tag_bind(self.tiles[x], "<ButtonPress-1>",
+        self.tiles["tile"] = np.array(tiles)
+        for x in range(len(self.tiles["tile"])):
+            self.map.tag_bind(self.tiles["tile"][x], "<ButtonPress-1>",
                               lambda event, arg=x: self.left_click_tile(arg))
-            self.map.tag_bind(self.tiles[x], "<ButtonPress-2>",
+            self.map.tag_bind(self.tiles["tile"][x], "<ButtonPress-2>",
                               lambda event, arg=x: self.right_click_tile(arg))
 
     def left_click_tile(self, x):
@@ -104,9 +108,10 @@ class UI():
 
     def paint_tiles(self):
         """Color the tiles."""
-        for x in range(len(self.tiles)):
-            self.map.itemconfigure(self.tiles[x],
-                                   fill=self.cell_color(x))
+        self.update_tile_colors()
+        for x in range(self.world.num_cells):
+            self.map.itemconfigure(self.tiles["tile"][x],
+                                   fill=self.tiles["color"][x])
 
     def update_time_label(self, time):
         """Update the UI time label."""
@@ -127,54 +132,81 @@ class UI():
                             .format(hour, minute, second, day, year))
         self.time_rate.set("x{}".format(settings.time_step_description))
 
-    def cell_color(self, cell):
+    def update_tile_colors(self):
         """Work out what color a tile should be.
 
         The color depends on the cell and the draw_mode parameter.
         """
         if settings.draw_mode == "terrain":
-            if self.world.cells["water_depth"][cell] == 0.0 or settings.draw_water is False:
-                col_min = [50, 20, 4]
-                col_max = [255, 255, 255]
-                p = ((self.world.cells["altitude"][cell] - settings.min_ground_height) /
-                     (settings.max_ground_height - settings.min_ground_height))
-            else:
-                col_min = [153, 204, 255]
-                col_max = [20, 20, 80]
-                p = self.world.cells["water_depth"][cell]/6000.0
-                if p > 1:
-                    p = 1
-        elif settings.draw_mode == "heat":
-            if settings.draw_water is True:
-                temp = cell.surface_temperature
-            else:
-                temp = cell.land.temperature
-            if temp < 223:
-                col_min = [0, 0, 0]
-                col_max = [82, 219, 255]
-                p = max(min((temp)/223.0, 1), 0)
-            elif temp < 273:
-                col_min = [82, 219, 255]
-                col_max = [255, 255, 255]
-                p = max(min((temp-223.0)/50.0, 1), 0)
-            elif temp < 313:
-                col_min = [255, 255, 255]
-                col_max = [255, 66, 0]
-                p = max(min((temp-273.0)/40.0, 1), 0)
-            else:
-                col_min = [255, 66, 0]
-                col_max = [0, 0, 0]
-                p = max(min((temp-313.0)/100.0, 1), 0)
+            terrain_col_min = [50, 20, 4]
+            terrain_col_max = [255, 255, 255]
 
-        elif settings.draw_mode == "wind":
-            col_min = [0, 0, 0]
-            col_max = [255, 255, 255]
-            p = min(cell.wind_speed, 10)/10
-        q = 1-p
-        col = [int(q*col_min[0] + p*col_max[0]),
-               int(q*col_min[1] + p*col_max[1]),
-               int(q*col_min[2] + p*col_max[2])]
-        return '#%02X%02X%02X' % (col[0], col[1], col[2])
+            # vector of values for each tile saying how much land there is.
+            p_terrain = ((self.world.cells["altitude"] - settings.min_ground_height) /
+                         (settings.max_ground_height - settings.min_ground_height))
+
+            # terrain_col_min matrix
+            dum = np.asarray(terrain_col_min*self.world.num_cells).reshape(self.world.num_cells, -1)
+            # terrain_col_max matrix
+            dum2 = np.asarray(terrain_col_max*self.world.num_cells).reshape(self.world.num_cells, -1)
+
+            dum3 = (1-p_terrain)[:, np.newaxis]*dum
+            dum4 = (p_terrain)[:, np.newaxis]*dum2
+
+            dum5 = (dum3 + dum4).astype(int)
+
+            self.tiles["color"] = ['#%02X%02X%02X' % (d[0], d[1], d[2]) for d in dum5]
+
+            if settings.draw_water:
+                water_col_min = [153, 204, 255]
+                water_col_max = [20, 20, 80]
+                p_water = np.minimum(self.world.cells["water_depth"]/6000.0, 1.0)
+
+                # terrain_col_min matrix
+                dum = np.asarray(water_col_min*self.world.num_cells).reshape(self.world.num_cells, -1)
+                # terrain_col_max matrix
+                dum2 = np.asarray(water_col_max*self.world.num_cells).reshape(self.world.num_cells, -1)
+
+                dum3 = (1-p_water)[:, np.newaxis]*dum
+                dum4 = (p_water)[:, np.newaxis]*dum2
+
+                dum5 = (dum3 + dum4).astype(int)
+
+                water_cols = ['#%02X%02X%02X' % (d[0], d[1], d[2]) for d in dum5]
+
+                self.tiles["color"] = [tc if wd < 0.01 else wc for tc, wc, wd in zip(self.tiles["color"], water_cols, self.world.cells["water_depth"])]
+
+        # elif settings.draw_mode == "heat":
+        #     if settings.draw_water is True:
+        #         temp = cell.surface_temperature
+        #     else:
+        #         temp = cell.land.temperature
+        #     if temp < 223:
+        #         col_min = [0, 0, 0]
+        #         col_max = [82, 219, 255]
+        #         p = max(min((temp)/223.0, 1), 0)
+        #     elif temp < 273:
+        #         col_min = [82, 219, 255]
+        #         col_max = [255, 255, 255]
+        #         p = max(min((temp-223.0)/50.0, 1), 0)
+        #     elif temp < 313:
+        #         col_min = [255, 255, 255]
+        #         col_max = [255, 66, 0]
+        #         p = max(min((temp-273.0)/40.0, 1), 0)
+        #     else:
+        #         col_min = [255, 66, 0]
+        #         col_max = [0, 0, 0]
+        #         p = max(min((temp-313.0)/100.0, 1), 0)
+
+        # elif settings.draw_mode == "wind":
+        #     col_min = [0, 0, 0]
+        #     col_max = [255, 255, 255]
+        #     p = min(cell.wind_speed, 10)/10
+        # q = 1-p
+        # col = [int(q*col_min[0] + p*col_max[0]),
+        #        int(q*col_min[1] + p*col_max[1]),
+        #        int(q*col_min[2] + p*col_max[2])]
+        # return '#%02X%02X%02X' % (col[0], col[1], col[2])
 
     def draw_terrain(self):
         """Paint map by altitude."""
