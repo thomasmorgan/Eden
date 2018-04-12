@@ -43,12 +43,14 @@ class World():
         # add longitude and latitiude for all cells
         longitude = []
         latitude = []
+        cells_at_latitude = []
         for y in range(settings.world_cell_circumference/2 + 1):
             lat = settings.degrees_per_cell*y - 90.0
 
             if lat in [-90.0, 90.0]:
                 longitude.append(0.0)
                 latitude.append(lat)
+                cells_at_latitude.append(1)
             else:
                 # radius of world at this latitiude
                 rad = np.cos(np.radians(lat))*settings.world_radius
@@ -58,9 +60,12 @@ class World():
                     longit = (360.0/float(cells))*x - 180.0
                     longitude.append(longit)
                     latitude.append(lat)
+                    cells_at_latitude.append(cells)
 
         self.cells['longitude'] = np.array(longitude)
         self.cells['latitude'] = np.array(latitude)
+        self.cells['relative_longitude'] = np.array(longitude)
+        self.cells['cells_at_latitude'] = np.array(cells_at_latitude)
         self.num_cells = len(self.cells['latitude'])
 
         print self.cells["latitude"]

@@ -6,6 +6,7 @@ from ui import UI
 import utility
 from utility import log
 from operator import attrgetter
+import numpy as np
 import settings
 
 
@@ -43,10 +44,16 @@ class EdenApp():
     def create_key_bindings(self):
         """Set up key bindings."""
         def leftKey(event):
-            self.rotate_map(-10.0)
+            self.ui.camera_longitude -= 10.0
+            if self.ui.camera_longitude < -180.0:
+                self.ui.camera_longitude += 360.0
+            self.redraw_map()
 
         def rightKey(event):
-            self.rotate_map(10.0)
+            self.ui.camera_longitude += 10.0
+            if self.ui.camera_longitude >= 180.0:
+                self.ui.camera_longitude -= 360.0
+            self.redraw_map()
 
         def upKey(event):
             self.change_time_step(1)
@@ -71,19 +78,11 @@ class EdenApp():
         self.ui.paint_tiles()
         self.master.update()
 
-    def rotate_map(self, degrees):
+    def redraw_map(self):
         """Spin the map."""
-        for c in self.simulation.world.cells:
-            c.longitude += degrees
-            if c.longitude < 0:
-                c.longitude += 360.0
-            elif c.longitude >= 360.0:
-                c.longitude -= 360.0
-
-        self.simulation.world.cells = sorted(
-            self.simulation.world.cells,
-            key=attrgetter("latitude", "longitude"))
-        self.ui.paint_tiles()
+        self.simulation.world.cells["relative_longitude"] = self.simulation.world.cells["longitude"] - self.ui.camera_longitude
+        self.simulation.world.cells["relative_longitude"] = np.array([x + 360.0 if x < -180.0 else x - 360.0 if x > 180.0 else x for x in self.simulation.world.cells["relative_longitude"]])
+        self.ui.place_tiles()
 
     def change_time_step(self, direction):
         """Change the time_step_size."""

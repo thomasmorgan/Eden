@@ -22,13 +22,12 @@ class UI():
         self.add_buttons()
         self.add_other_widgets()
         self.add_map()
+        self.camera_longitude = 0.0
 
         self.tiles = {}
 
         log(">> Creating tiles")
         self.create_tiles()
-        log(">> Painting tiles")
-        self.paint_tiles()
 
     def add_buttons(self):
         """Add buttons to the frame."""
@@ -68,33 +67,15 @@ class UI():
         self.map.delete("all")
         tiles = []
         for i in range(self.world.num_cells):
-            # get the coords of the current cell
-            lat = self.world.cells["latitude"][i]
-            lon = self.world.cells["longitude"][i]
-            # how many cells are at this latitiude?
-            n_in_row = sum(self.world.cells["latitude"] == lat)
-
-            # position of top-left corner of left most tile in this row
-            x_start = ((settings.map_width/2.0) -
-                       (n_in_row/2.0)*settings.tile_width)
-            y_start = (((lat+90.0)/settings.cell_degree_width) *
-                       settings.tile_height)
-
-            tiles.append(self.map.create_rectangle(
-                (x_start +
-                    ((lon+180)/360.0) * n_in_row * settings.tile_width),
-                y_start,
-                (x_start + settings.tile_width + 1 +
-                    ((lon+180)/360.0) * n_in_row * settings.tile_width),
-                y_start + settings.tile_height,
-                fill="yellow",
-                outline=""))
+            tiles.append(self.map.create_rectangle(0, 0, 1, 1, fill="yellow", outline=""))
         self.tiles["tile"] = np.array(tiles)
         for x in range(len(self.tiles["tile"])):
             self.map.tag_bind(self.tiles["tile"][x], "<ButtonPress-1>",
                               lambda event, arg=x: self.left_click_tile(arg))
             self.map.tag_bind(self.tiles["tile"][x], "<ButtonPress-2>",
                               lambda event, arg=x: self.right_click_tile(arg))
+        self.paint_tiles()
+        self.place_tiles()
 
     def left_click_tile(self, x):
         """Tell world to raise terrain at cell x."""
@@ -112,6 +93,28 @@ class UI():
         for x in range(self.world.num_cells):
             self.map.itemconfigure(self.tiles["tile"][x],
                                    fill=self.tiles["color"][x])
+
+    def place_tiles(self):
+        # latitude of each cell
+        lats = self.world.cells["latitude"]
+        # apparent longitude of each cell
+        lons = self.world.cells["relative_longitude"]
+        # how many cells at each latitude
+        n_in_row = self.world.cells["cells_at_latitude"]
+
+        # where each tiles row starts
+        row_x_start = ((settings.map_width/2.0) -
+                       n_in_row*settings.tile_width/2.0)
+        row_y_start = (((lats+90.0)/settings.cell_degree_width) *
+                       settings.tile_height)
+
+        # coordinates for each tile
+        x0 = row_x_start + ((lons+180)/360.0) * n_in_row * settings.tile_width
+        y0 = row_y_start
+        x1 = x0 + settings.tile_width
+        y1 = y0 + settings.tile_width
+        for i in range(self.world.num_cells):
+            self.map.coords(self.tiles["tile"][i], x0[i], y0[i], x1[i], y1[i])
 
     def update_time_label(self, time):
         """Update the UI time label."""
