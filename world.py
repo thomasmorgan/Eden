@@ -113,33 +113,29 @@ class World():
 
         This method deviates from real physics.
         """
-        index = range(len(self.cells))
-        random.shuffle(index)
-        for i in index:
-            # for each cell
-            cell = self.cells[i]
-            if cell.water.depth > 0:
-                random.shuffle(cell.neighbors)
-                for n in cell.neighbors:
-                    height_diff = max(0,
-                                      cell.surface_height - n.surface_height)
-                    if height_diff > 0:
-                        wave_height = min(cell.water.depth, height_diff/2)
-                        wave_area = wave_height*settings.cell_width
-                        wave_vol = max(wave_area * 2.0,
-                                       1.0) * settings.time_step_size
-                        max_vol_loosable = min(settings.cell_width * wave_area,
-                                               cell.water.volume)
-                        vol_moved = min(wave_vol,
-                                        max_vol_loosable)
-                        mass_moved = vol_moved * settings.water_density
-                        temp = cell.water.temperature
-                        cell.add_material("water",
-                                          -mass_moved,
-                                          temp)
-                        n.add_material("water",
-                                       mass_moved,
-                                       temp)
+
+        # work our all current water surface altitudes
+        initial_surface_altitude = self.cells["altitude"] + self.cells["water_depth"]
+
+        # how much water can each cell lose in the time step
+        water_to_transport = np.minimum(settings.time_step_size*settings.water_transport_rate*self.cells["water_depth"]*settings.cell_width*4, self.cells["water"])
+
+        # take the water away, recalculate depth and altitude
+        self.cells["water"] -= water_to_transport
+        self.cells["water_depth"] = (self.cells["water"]/settings.water_density)/settings.cell_area
+        secondary_surface_altitude = self.cells["altitude"] + self.cells["water_depth"]
+
+        # work out where the water wants to go, send it there
+        for i in range(self.num_cells):
+            target_propensity = np.maximum(initial_surface_altitude[i] - secondary_surface_altitude, 0)*self.cells["influence"][i, :]
+            if sum(target_propensity) > 0:
+                delta_water = (target_propensity/sum(target_propensity))*water_to_transport[i]
+                self.cells["water"] += delta_water
+            else:
+                self.cells["water"][i] += water_to_transport[i]
+
+        # recalculate water depth
+        self.cells["water_depth"] = (self.cells["water"]/settings.water_density)/settings.cell_area
 
     """ #####################
     ### EXECUTION METHODS ###
