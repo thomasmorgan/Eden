@@ -1,6 +1,6 @@
 """The user interface."""
 
-from Tkinter import Button, Canvas, Label, StringVar, W, E
+from Tkinter import Button, Checkbutton, Canvas, Label, StringVar, W, E, IntVar
 import settings
 from utility import log
 import numpy as np
@@ -42,10 +42,14 @@ class UI():
         heat_button.grid(row=1, column=2, sticky=W+E)
         influence_button = Button(self.frame, text="INFLUENCE", fg="red",
                                   command=self.draw_influence)
-        influence_button.grid(row=1, column=2, sticky=W+E)
+        influence_button.grid(row=1, column=3, sticky=W+E)
 
     def add_other_widgets(self):
         """Add other widgets to the frame."""
+        self.update_map = IntVar()
+        update_map_check = Checkbutton(self.frame, text="Update map?", variable=self.update_map)
+        update_map_check.grid(row=1, column=4, sticky=W+E)
+        self.update_map.set(1)
         self.time_rate = StringVar()
         self.rate_label = Label(self.frame, textvariable=self.time_rate)
         self.rate_label.grid(row=0, column=0, sticky=W, columnspan=2)
@@ -143,64 +147,65 @@ class UI():
 
         The color depends on the cell and the draw_mode parameter.
         """
-        if settings.draw_mode == "terrain":
-            terrain_col_min = [50, 20, 4]
-            terrain_col_max = [255, 255, 255]
+        if self.update_map.get() == 1:
+            if settings.draw_mode == "terrain":
+                terrain_col_min = [50, 20, 4]
+                terrain_col_max = [255, 255, 255]
 
-            # vector of values for each tile saying how much land there is.
-            p_terrain = ((self.world.cells["altitude"] - settings.min_ground_height) /
-                         (settings.max_ground_height - settings.min_ground_height))
-
-            # terrain_col_min matrix
-            dum = np.asarray(terrain_col_min*self.world.num_cells).reshape(self.world.num_cells, -1)
-            # terrain_col_max matrix
-            dum2 = np.asarray(terrain_col_max*self.world.num_cells).reshape(self.world.num_cells, -1)
-
-            dum3 = (1-p_terrain)[:, np.newaxis]*dum
-            dum4 = (p_terrain)[:, np.newaxis]*dum2
-
-            dum5 = (dum3 + dum4).astype(int)
-
-            self.tiles["color"] = ['#%02X%02X%02X' % (d[0], d[1], d[2]) for d in dum5]
-
-            if settings.draw_water:
-                water_col_min = [153, 204, 255]
-                water_col_max = [20, 20, 80]
-                p_water = np.minimum(self.world.cells["water_depth"]/6000.0, 1.0)
+                # vector of values for each tile saying how much land there is.
+                p_terrain = ((self.world.cells["altitude"] - settings.min_ground_height) /
+                             (settings.max_ground_height - settings.min_ground_height))
 
                 # terrain_col_min matrix
-                dum = np.asarray(water_col_min*self.world.num_cells).reshape(self.world.num_cells, -1)
+                dum = np.asarray(terrain_col_min*self.world.num_cells).reshape(self.world.num_cells, -1)
                 # terrain_col_max matrix
-                dum2 = np.asarray(water_col_max*self.world.num_cells).reshape(self.world.num_cells, -1)
+                dum2 = np.asarray(terrain_col_max*self.world.num_cells).reshape(self.world.num_cells, -1)
 
-                dum3 = (1-p_water)[:, np.newaxis]*dum
-                dum4 = (p_water)[:, np.newaxis]*dum2
+                dum3 = (1-p_terrain)[:, np.newaxis]*dum
+                dum4 = (p_terrain)[:, np.newaxis]*dum2
 
                 dum5 = (dum3 + dum4).astype(int)
 
-                water_cols = ['#%02X%02X%02X' % (d[0], d[1], d[2]) for d in dum5]
+                self.tiles["color"] = ['#%02X%02X%02X' % (d[0], d[1], d[2]) for d in dum5]
 
-                self.tiles["color"] = [tc if wd < 0.01 else wc for tc, wc, wd in zip(self.tiles["color"], water_cols, self.world.cells["water_depth"])]
+                if settings.draw_water:
+                    water_col_min = [153, 204, 255]
+                    water_col_max = [20, 20, 80]
+                    p_water = np.minimum(self.world.cells["water_depth"]/6000.0, 1.0)
 
-        if settings.draw_mode == "influence":
-            influence_col_min = [50, 20, 4]
-            influence_col_max = [175, 175, 255]
+                    # terrain_col_min matrix
+                    dum = np.asarray(water_col_min*self.world.num_cells).reshape(self.world.num_cells, -1)
+                    # terrain_col_max matrix
+                    dum2 = np.asarray(water_col_max*self.world.num_cells).reshape(self.world.num_cells, -1)
 
-            focal_cell = np.random.randint(self.world.num_cells)
+                    dum3 = (1-p_water)[:, np.newaxis]*dum
+                    dum4 = (p_water)[:, np.newaxis]*dum2
 
-            p_influence = self.world.cells["influence"][focal_cell, :]
+                    dum5 = (dum3 + dum4).astype(int)
 
-            # terrain_col_min matrix
-            dum = np.asarray(influence_col_min*self.world.num_cells).reshape(self.world.num_cells, -1)
-            # terrain_col_max matrix
-            dum2 = np.asarray(influence_col_max*self.world.num_cells).reshape(self.world.num_cells, -1)
+                    water_cols = ['#%02X%02X%02X' % (d[0], d[1], d[2]) for d in dum5]
 
-            dum3 = (1-p_influence)[:, np.newaxis]*dum
-            dum4 = (p_influence)[:, np.newaxis]*dum2
+                    self.tiles["color"] = [tc if wd < 0.01 else wc for tc, wc, wd in zip(self.tiles["color"], water_cols, self.world.cells["water_depth"])]
 
-            dum5 = (dum3 + dum4).astype(int)
+            if settings.draw_mode == "influence":
+                influence_col_min = [50, 20, 4]
+                influence_col_max = [175, 175, 255]
 
-            self.tiles["color"] = ['#%02X%02X%02X' % (d[0], d[1], d[2]) for d in dum5]
+                focal_cell = np.random.randint(self.world.num_cells)
+
+                p_influence = self.world.cells["influence"][focal_cell, :]
+
+                # terrain_col_min matrix
+                dum = np.asarray(influence_col_min*self.world.num_cells).reshape(self.world.num_cells, -1)
+                # terrain_col_max matrix
+                dum2 = np.asarray(influence_col_max*self.world.num_cells).reshape(self.world.num_cells, -1)
+
+                dum3 = (1-p_influence)[:, np.newaxis]*dum
+                dum4 = (p_influence)[:, np.newaxis]*dum2
+
+                dum5 = (dum3 + dum4).astype(int)
+
+                self.tiles["color"] = ['#%02X%02X%02X' % (d[0], d[1], d[2]) for d in dum5]
 
 
         # elif settings.draw_mode == "heat":
