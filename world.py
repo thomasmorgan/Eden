@@ -128,18 +128,19 @@ class World():
         # take the water away, recalculate depth and altitude
         self.cells["water"] -= water_to_transport
         self.cells["water_depth"] = (self.cells["water"]/settings.water_density)/settings.cell_area
-        secondary_surface_altitude = self.cells["altitude"] + self.cells["water_depth"]
+        secondary_surface_altitude = self.cells["altitude"] + self.cells["water_depth"] - 0.000001
 
-        # work out where the water wants to go, send it there
-        for i in range(self.num_cells):
-            target_propensity = np.maximum(initial_surface_altitude[i] - secondary_surface_altitude, 0)*self.cells["influence"][i, :]
-            if sum(target_propensity) > 0:
-                delta_water = (target_propensity/sum(target_propensity))*water_to_transport[i]
-                self.cells["water"] += delta_water
-            else:
-                self.cells["water"][i] += water_to_transport[i]
+        # make a matrix of the secondary surface altitudes of each cell
+        ssa_matrix = np.reshape(np.tile(secondary_surface_altitude, self.num_cells), (self.num_cells, self.num_cells))
 
-        # recalculate water depth
+        # subtract the initial surface altitude of the ith cell from the ith row, floor at 0.0001, then multiply by the influence matrix
+        # this gives a matrix saying how much each cell wants to send water to every other cell according to influence and difference in altitude
+        attraction_matrix = np.maximum(initial_surface_altitude - ssa_matrix.T, 0).T*self.cells["influence"]
+
+        # scale values to each row sums to water_to_transport
+        delta_water = sum(((attraction_matrix.T/sum(attraction_matrix.T))*water_to_transport).T)
+        self.cells["water"] += delta_water
+
         self.cells["water_depth"] = (self.cells["water"]/settings.water_density)/settings.cell_area
 
     """ #####################
