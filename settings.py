@@ -41,8 +41,8 @@ max_ground_height = 10000
 
 
 """ land properties """
+# effective thickness of crust
 land_depth = 5  # (m)
-
 land_thermal_conductivity = tv.earths_crust_thermal_conductivity
 
 """ world energy budgets """
