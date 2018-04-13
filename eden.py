@@ -83,6 +83,7 @@ class EdenApp():
         self.simulation.world.cells["relative_longitude"] = self.simulation.world.cells["longitude"] - self.ui.camera_longitude
         self.simulation.world.cells["relative_longitude"] = np.array([x + 360.0 if x < -180.0 else x - 360.0 if x > 180.0 else x for x in self.simulation.world.cells["relative_longitude"]])
         self.ui.place_tiles()
+        self.ui.paint_tiles()
 
     def change_time_step(self, direction):
         """Change the time_step_size."""

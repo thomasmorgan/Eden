@@ -207,6 +207,10 @@ class UI():
 
                 self.tiles["color"] = ['#%02X%02X%02X' % (d[0], d[1], d[2]) for d in dum5]
 
+        if not settings.draw_map_far_side:
+            self.tiles["color"] = [tc if l >= -90.0 and l <= 90.0 else '#%02X%02X%02X' % (0, 0, 0) for tc, l in zip(self.tiles["color"], self.world.cells["relative_longitude"])]
+
+
 
         # elif settings.draw_mode == "heat":
         #     if settings.draw_water is True:

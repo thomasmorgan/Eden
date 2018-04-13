@@ -113,6 +113,8 @@ draw_water = True
 draw_mode = "terrain"
 draw_water = True
 
+draw_map_far_side = False
+
 """ ########################
 #####  MISC SETTINGS  ######
 ######################## """
