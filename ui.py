@@ -86,12 +86,14 @@ class UI():
 
     def left_click_tile(self, x):
         """Tell world to raise terrain at cell x."""
-        self.world.raise_cell(x, 1000)
+        self.world.raise_cell(x, 1000, settings.cell_width)
+        self.world.normalize_terrain()
         self.paint_tiles()
 
     def right_click_tile(self, x):
         """Tell world to raise terrain at cell x."""
-        self.world.raise_cell(x, -1000)
+        self.world.raise_cell(x, -1000, settings.cell_width)
+        self.world.normalize_terrain()
         self.paint_tiles()
 
     def paint_tiles(self):

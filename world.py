@@ -90,8 +90,7 @@ class World():
         sds = (np.random.rand(settings.n_distortions)*0.8 + 0.2)*settings.cell_width*4
 
         for i in range(settings.n_distortions):
-            distance = self.cells["distance"][cells[i], ]
-            self.cells["altitude"] += magnitudes[i]*stats.norm.pdf(distance, loc=0, scale=sds[i])/stats.norm.pdf(0, loc=0, scale=sds[i])
+            self.raise_cell(cells[i], magnitudes[i], sds[i])
 
         self.normalize_terrain()
 
@@ -195,24 +194,8 @@ class World():
                      settings.max_ground_height])
         self.cells["altitude"] = self.cells["altitude"]/scale
 
-    def raise_cell(self, cell_id, height):
+    def raise_cell(self, cell_id, mag, sd):
         """Raise a cells land height."""
-        cell = self.cells[cell_id]
 
-        long = cell.longitude
-        lat = cell.latitude
-        rate = random.random()*3 + 3
-
-        for cell in self.cells:
-            distance = settings.world_radius*math.acos(
-                max(min(
-                    math.cos(math.radians(cell.latitude)) *
-                    math.cos(math.radians(lat)) +
-                    math.sin(math.radians(cell.latitude)) *
-                    math.sin(math.radians(lat)) *
-                    math.cos(abs(math.radians(cell.longitude) -
-                                 math.radians(long))),
-                    1.0), -1.0))
-            hs = height / (distance/(100000*rate) + 1)
-            cell.land.height += hs
-        self.normalize_terrain()
+        distance = self.cells["distance"][cell_id, ]
+        self.cells["altitude"] += mag*stats.norm.pdf(distance, loc=0, scale=sd)/stats.norm.pdf(0, loc=0, scale=sd)
