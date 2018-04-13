@@ -25,9 +25,7 @@ class World():
         log(">> Creating cells")
         self.create_cells()
         log(">> Distorting terrain")
-        self.create_land()
         self.create_terrain()
-        self.normalize_terrain()
         log(">> Creating oceans")
         self.create_oceans()
 
@@ -68,18 +66,13 @@ class World():
         self.cells['cells_at_latitude'] = np.array(cells_at_latitude)
         self.num_cells = len(self.cells['latitude'])
 
-        print self.cells["latitude"]
-        print self.cells["longitude"]
-
         # create a distance matrix and add it to the dictionary
         self.cells['distance'] = np.empty(shape=(self.num_cells, self.num_cells))
         self.cells['influence'] = np.empty(shape=(self.num_cells, self.num_cells))
         for x in range(self.num_cells):
             self.cells['distance'][x, :] = utility.haversine(self.cells['longitude'][x], self.cells['latitude'][x], self.cells['longitude'], self.cells['latitude'])
-            self.cells['influence'][x, :] = np.exp(-settings.influence_lambda*self.cells['distance'][x, :])
-
-        print self.cells['distance'][1, :]
-        print self.cells['influence'][1, :]
+            #self.cells['influence'][x, :] = np.exp(-settings.influence_lambda*self.cells['distance'][x, :])
+            self.cells['influence'][x, :] = stats.norm.pdf(self.cells['distance'][x, :], loc=0, scale=settings.cell_width)/stats.norm.pdf(0, loc=0, scale=settings.cell_width)
 
     def create_terrain(self):
         """Assign height values to the land."""
@@ -118,7 +111,6 @@ class World():
 
         This method deviates from real physics.
         """
-
         # work our all current water surface altitudes
         initial_surface_altitude = self.cells["altitude"] + self.cells["water_depth"]
 
