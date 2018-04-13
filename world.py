@@ -97,12 +97,12 @@ class World():
 
     def create_oceans(self):
         """Create water."""
-        self.cells["water"] = np.zeros(shape=(self.num_cells), dtype=float)
         if settings.water_init_mode == "even":
-            water_mass_per_cell = settings.world_water_mass/len(self.cells)
-            self.cells["water"] = np.full(water_mass_per_cell, shape=(self.num_cells), dtype=float)
+            water_mass_per_cell = settings.world_water_mass/self.num_cells
+            self.cells["water"] = np.full(shape=(self.num_cells), fill_value=water_mass_per_cell, dtype=float)
         elif settings.water_init_mode == "dump":
             cell = np.random.randint(0, self.num_cells)
+            self.cells["water"] = np.zeros(shape=(self.num_cells), dtype=float)
             self.cells["water"][cell] = settings.world_water_mass
         self.cells["water_depth"] = (self.cells["water"]/settings.water_density)/settings.cell_area
 
