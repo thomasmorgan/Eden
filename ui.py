@@ -104,35 +104,59 @@ class UI():
                                    fill=self.tiles["color"][x])
 
     def place_tiles(self):
-        # latitude of each cell
-        lats = self.world.cells["latitude"]
-        start_lats = np.minimum(lats + settings.cell_degree_width/2.0, 90.0)
-        stop_lats = np.maximum(lats - settings.cell_degree_width/2.0, -90.0)
+        if settings.map_mode == "globe":
+            # latitude of each cell
+            lats = self.world.cells["latitude"]
+            start_lats = np.minimum(lats + settings.cell_degree_width/2.0, 90.0)
+            stop_lats = np.maximum(lats - settings.cell_degree_width/2.0, -90.0)
 
-        # apparent longitude of each cell
-        lons = self.world.cells["relative_longitude"]
-        start_lons = lons - (360.0/self.world.cells["cells_at_latitude"])/2.0
-        stop_lons = lons + (360.0/self.world.cells["cells_at_latitude"])/2.0
+            # apparent longitude of each cell
+            lons = self.world.cells["relative_longitude"]
+            start_lons = lons - (360.0/self.world.cells["cells_at_latitude"])/2.0
+            stop_lons = lons + (360.0/self.world.cells["cells_at_latitude"])/2.0
 
-        y0 = settings.map_height * (np.sin(np.radians(start_lats)) + 1) / 2.0
-        y0 = [x if sl >= -90.0 and sl <= 90.0 else 0 for x, sl in zip(y0, lons)]
-        y1 = settings.map_height * (np.sin(np.radians(stop_lats)) + 1) / 2.0
-        y1 = [x if sl >= -90.0 and sl <= 90.0 else 0 for x, sl in zip(y1, lons)]
+            # work out y0 and y1
+            min_dim = min([settings.map_height, settings.map_width])
+            y0 = min_dim * (np.sin(np.radians(start_lats)) + 1) / 2.0
+            y0 = [x if sl >= -90.0 and sl <= 90.0 else 0 for x, sl in zip(y0, lons)]
+            y1 = min_dim * (np.sin(np.radians(stop_lats)) + 1) / 2.0
+            y1 = [x if sl >= -90.0 and sl <= 90.0 else 0 for x, sl in zip(y1, lons)]
 
-        # what is the radius of a flat slice through the globe at any latitude?
-        RAL = np.maximum(settings.map_width/2.0*np.cos(np.radians(start_lats)), settings.map_width/2.0*np.cos(np.radians(stop_lats)))
+            # what is the radius of a flat slice through the globe at any latitude?
+            RAL = np.maximum(min_dim/2.0*np.cos(np.radians(start_lats)), min_dim/2.0*np.cos(np.radians(stop_lats)))
 
-        # what is the perceived distance from the centre of the screen (LR) for a given longitude at this latitude
-        start_dx = np.sin(np.radians(start_lons))*RAL
-        stop_dx = np.sin(np.radians(stop_lons))*RAL
-        x0 = settings.map_width / 2.0 + start_dx
-        x1 = settings.map_width / 2.0 + stop_dx
+            # what is the perceived distance from the centre of the screen (LR) for a given longitude at this latitude
+            start_dx = np.sin(np.radians(start_lons))*RAL
+            stop_dx = np.sin(np.radians(stop_lons))*RAL
+            x0 = settings.map_width / 2.0 + start_dx
+            x1 = settings.map_width / 2.0 + stop_dx
 
-        for i in range(self.world.num_cells):
-            if lons[i] >= -90 and lons[i] <= 90:
+            for i in range(self.world.num_cells):
+                if lons[i] >= -90 and lons[i] <= 90:
+                    self.map.coords(self.tiles["tile"][i], x0[i], y0[i], x1[i], y1[i])
+                else:
+                    self.map.coords(self.tiles["tile"][i], 0, 0, 0, 0)
+        elif settings.map_mode == "flat":
+            lats = self.world.cells["latitude"]
+            lons = self.world.cells["relative_longitude"]
+
+            # how many cells at each latitude
+            n_in_row = self.world.cells["cells_at_latitude"]
+
+            # where each tiles row starts
+            row_x_start = ((settings.map_width/2.0) -
+                           n_in_row*settings.tile_width/2.0)
+            row_y_start = (((lats+90.0)/settings.cell_degree_width) *
+                           settings.tile_height)
+
+            # coordinates for each tile
+            x0 = row_x_start + ((lons+180)/360.0) * n_in_row * settings.tile_width
+            y0 = row_y_start
+            x1 = x0 + settings.tile_width + 1
+            y1 = y0 + settings.tile_height
+
+            for i in range(self.world.num_cells):
                 self.map.coords(self.tiles["tile"][i], x0[i], y0[i], x1[i], y1[i])
-            else:
-                self.map.coords(self.tiles["tile"][i], 0, 0, 0, 0)
 
     def update_time_label(self, time):
         """Update the UI time label."""

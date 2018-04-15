@@ -113,7 +113,7 @@ draw_water = True
 draw_mode = "terrain"
 draw_water = True
 
-draw_map_far_side = False
+map_mode = "globe"
 
 """ ########################
 #####  MISC SETTINGS  ######
